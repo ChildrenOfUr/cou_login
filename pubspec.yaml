@@ -1,5 +1,5 @@
 name: cou_login
-version: 0.1.0
+version: 0.1.1
 description: A polymer component that encapsulates the functionality needed for the game's login system
 
 dependencies:
@@ -7,8 +7,6 @@ dependencies:
   polymer: ">=0.16.1+4 <0.17.0"
   core_elements: ">=0.7.1+2 <0.8.0"
   paper_elements: ">=0.7.1 <0.8.0"
-  redstone: ">=0.5.21+1 <0.6.0"
-  redstone_mapper: ">=0.1.13 <0.2.0"
   firebase: ">=0.5.0 <0.6.0"
   cou_toolkit:
     git:
@@ -16,6 +14,5 @@ dependencies:
       url: https://github.com/ChildrenOfUr/cou_toolkit.git
 
 transformers:
-- redstone_mapper
 - polymer:
     entry_points: web/index.html
