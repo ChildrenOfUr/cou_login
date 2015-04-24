@@ -10,7 +10,8 @@ import 'dart:convert';
 class UrLogin extends PolymerElement
 {
 	@published String serveraddress, serverwebsocket;
-	@observable bool newUser = false, timedout = false, newSignup = false, waiting = false, existingUser = false, loggedIn = false;
+	@observable bool newUser = false, timedout = false, newSignup = false, waiting = false;
+	@observable bool  waitingOnEmail = false, existingUser = false, loggedIn = false;
 	@observable String username, email, password, newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
@@ -34,7 +35,7 @@ class UrLogin extends PolymerElement
 			String email = window.localStorage['authEmail'];
 			await firebase.authWithCustomToken(token);
 
-			HttpRequest request = await HttpRequest.request(serveraddress + "/getSession", method: "POST",
+			HttpRequest request = await HttpRequest.request(serveraddress + "/auth/getSession", method: "POST",
                         				requestHeaders: {"content-type": "application/json"},
                         				sendData: JSON.encode({'email':email}));
     		dispatchEvent(new CustomEvent('loginSuccess', detail: JSON.decode(request.response)));
@@ -115,7 +116,7 @@ class UrLogin extends PolymerElement
 
 	Future<Map> getSession(String email) async
 	{
-		HttpRequest request = await HttpRequest.request(serveraddress + "/getSession", method: "POST",
+		HttpRequest request = await HttpRequest.request(serveraddress + "/auth/getSession", method: "POST",
                     				requestHeaders: {"content-type": "application/json"},
                     				sendData: JSON.encode({'email':email}));
 		window.localStorage['authToken'] = firebase.getAuth()['token'];
@@ -167,10 +168,11 @@ class UrLogin extends PolymerElement
 			return;
 
 		waiting = true;
+		waitingOnEmail = true;
 
 		Timer tooLongTimer = new Timer(new Duration(seconds: 5),() => timedout = true);
 
-		HttpRequest request = await HttpRequest.request(serveraddress + "/verifyEmail", method: "POST",
+		HttpRequest request = await HttpRequest.request(serveraddress + "/auth/verifyEmail", method: "POST",
 				requestHeaders: {"content-type": "application/json"},
 				sendData: JSON.encode({'email':email}));
 

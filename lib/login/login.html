@@ -24,7 +24,7 @@
 								<ur-button id="loginbutton" class="{{waiting?'waiting':''}}" on-click="{{loginAttempt}}"><i class="fa fa-sign-in"></i> Log In</ur-button>
 								<ur-button class="{{waiting?'waiting':''}}" on-click="{{verifyEmail}}"><i class="fa fa-pencil"></i> Sign Up</ur-button>
 							</div>
-							<template if="{{waiting}}">
+							<template if="{{waitingOnEmail}}">
 								<div id="msg">Please check your email.</div>
 							</template>
 						</div>
