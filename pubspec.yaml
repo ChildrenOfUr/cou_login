@@ -11,7 +11,7 @@ dependencies:
   cou_toolkit:
     git:
       ref: master
-      url: https://github.com/ChildrenOfUr/cou_toolkit.git
+      url: git://github.com/ChildrenOfUr/cou_toolkit.git
 
 transformers:
 - polymer:
