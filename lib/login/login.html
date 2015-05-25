@@ -24,9 +24,19 @@
 								<ur-button id="loginbutton" class="{{waiting?'waiting':''}}" on-click="{{loginAttempt}}"><i class="fa fa-sign-in"></i> Log In</ur-button>
 								<ur-button class="{{waiting?'waiting':''}}" on-click="{{verifyEmail}}"><i class="fa fa-pencil"></i> Sign Up</ur-button>
 							</div>
-							<template if="{{waitingOnEmail}}">
-								<div id="msg">Please check your email.</div>
-							</template>
+							<div id="msg">
+								<template if="{{waitingOnEmail}}">
+									Please check your email.<br>
+								</template>
+								<template if="{{invalidEmail}}">
+									Please enter a valid email.
+								</template>
+								<template if="{{passwordTooShort}}">
+										New passwords need to be
+										<br>
+										longer than 6 characters
+								</template>
+							</div>
 						</div>
 					</div>
 					<div id="bottom">

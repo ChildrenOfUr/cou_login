@@ -10,8 +10,8 @@ import 'dart:convert';
 class UrLogin extends PolymerElement
 {
 	@published String serveraddress, serverwebsocket;
-	@observable bool newUser = false, timedout = false, newSignup = false, waiting = false;
-	@observable bool  waitingOnEmail = false, existingUser = false, loggedIn = false;
+	@observable bool newUser = false, timedout = false, newSignup = false, waiting = false, invalidEmail = false;
+	@observable bool  waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
 	@observable String username, email, password, newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
@@ -161,6 +161,23 @@ class UrLogin extends PolymerElement
 
 	verifyEmail(event, detail, target) async
 	{
+		if (!email.contains('@')) {
+			invalidEmail = true;
+			return;
+		}
+		else {
+			invalidEmail = false;
+		}
+		if (password.length < 6) {
+			passwordTooShort = true;
+			return;
+		}
+		else {
+			passwordTooShort = false;
+		}
+
+
+
 		if(!_enterKey(event))
         	return;
 
@@ -216,6 +233,7 @@ class UrLogin extends PolymerElement
 			else
 			{
 				print('problem verifying email address: ${map['result']}');
+
 			}
 			waiting = false;
 		});
