@@ -34,6 +34,7 @@ class UrLogin extends PolymerElement {
 			                                                requestHeaders: {"content-type": "application/json"},
 			                                                sendData: JSON.encode({'email':email}));
 			dispatchEvent(new CustomEvent('loginSuccess', detail: JSON.decode(request.response)));
+			print('relogin() success');
 		}
 		catch(err) {
 			print('error relogin(): $err');
@@ -90,6 +91,7 @@ class UrLogin extends PolymerElement {
 			await firebase.authWithPassword(credentials);
 			Map sessionMap = await getSession(email);
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
+			print('success');
 		}
 		catch(err) {
 			print(err);
