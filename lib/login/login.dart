@@ -122,17 +122,11 @@ class UrLogin extends PolymerElement {
 		if(newUsername == '' || newPassword == '')
 			return;
 
-		try {
-			await firebase.createUser({'email':email, 'password':newPassword});
-			if(existingUser) {
-				dispatchEvent(new CustomEvent('loginSuccess', detail: serverdata));
-			}
-			else {
-				dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
-			}
+		if(existingUser) {
+			dispatchEvent(new CustomEvent('loginSuccess', detail: serverdata));
 		}
-		catch(err) {
-			print("couldn't create user on firebase: $err");
+		else {
+			dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
 		}
 	}
 
@@ -199,13 +193,14 @@ class UrLogin extends PolymerElement {
 						window.localStorage['username'] = username;
 						//email already exists, make them choose a password
 						existingUser = true;
+					}
+					else {
 						newUser = true;
 						newUsername = username;
 						serverdata = map['serverdata'];
+						print('new user');
 					}
-					else {
-						dispatchEvent(new CustomEvent('loginSuccess', detail: map['serverdata']));
-					}
+					dispatchEvent(new CustomEvent('loginSuccess', detail: map['serverdata']));
 				}
 				catch(err) {
 					print("couldn't create user on firebase: $err");
