@@ -9,7 +9,8 @@ import 'dart:convert';
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
 	@published String serveraddress, serverwebsocket;
-	@observable bool newUser = false, timedout = false, newSignup = false, waiting = false, invalidEmail = false;
+	@published bool  newUser = false;
+	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
 	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
 	@observable String username, email, password, newUsername = '', newPassword = '';
 	Firebase firebase;
