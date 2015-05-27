@@ -6,7 +6,10 @@ import 'package:firebase/firebase.dart';
 import 'dart:async';
 import 'dart:convert';
 
-@CustomTag('ur-login')
+// import the parent component.
+import '../ur-login.dart';
+
+@CustomTag('mode-login')
 class UrLogin extends PolymerElement {
 	@published String serveraddress, serverwebsocket;
 	@published bool  newUser = false;
