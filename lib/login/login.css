@@ -29,6 +29,11 @@ input {
     margin-bottom: 5px;
     display: block;
     width: 100%;
+    font-size: 15px;
+    background-color: #eee;
+    height: 16px;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: 5px;
 }
 
 #loginscreen {
@@ -85,4 +90,10 @@ input {
 #msg {
     margin-top: 10px;
     text-align: left;
+}
+
+*,
+*:active,
+*:focus {
+    outline: none;
 }
