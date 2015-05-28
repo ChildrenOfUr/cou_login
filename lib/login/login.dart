@@ -104,9 +104,9 @@ class UrLogin extends PolymerElement {
 			// closed window earlier, username not set.
 			if (username == '') {
 				newUser = true;
-				newUsername = username;
-				print('new username');
-				return;
+				existingUser = false;
+				await window.on['setUsername'].first;
+				username = newUsername;
 			}
 
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
@@ -140,7 +140,8 @@ class UrLogin extends PolymerElement {
 		if(!_enterKey(event))
 			return;
 
-		if(newUsername == '' || newPassword == '')
+		print(newUsername);
+		if(newUsername == '')
 			return;
 
 		if(existingUser) {
