@@ -102,7 +102,7 @@ class UrLogin extends PolymerElement {
 			Map sessionMap = await getSession(email);
 
 			// closed window earlier, username not set.
-			if (username == '') {
+			if (sessionMap['playerName'] == '') {
 				newUser = true;
 				existingUser = false;
 				await window.on['setUsername'].first;
