@@ -100,6 +100,15 @@ class UrLogin extends PolymerElement {
 		try {
 			await firebase.authWithPassword(credentials);
 			Map sessionMap = await getSession(email);
+
+			// closed window earlier, username not set.
+			if (username == '') {
+				newUser = true;
+				newUsername = username;
+				print('new username');
+				return;
+			}
+
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
 			print('success');
 		}
@@ -151,11 +160,6 @@ class UrLogin extends PolymerElement {
 		Element warning = shadowRoot.querySelector('#warning');
 		warning.text = '';
 
-		// display password confirmation
-		if (!passwordConfirmation) {
-			passwordConfirmation = true;
-		}
-
 		// not an email
 		if(!email.contains('@')) {
 			warning.text = 'Invalid email';
@@ -168,7 +172,14 @@ class UrLogin extends PolymerElement {
 			return;
 		}
 
+		// display password confirmation
+		if (!passwordConfirmation) {
+			passwordConfirmation = true;
+			return;
+		}
+
 		// passwords don't match
+		print(shadowRoot.querySelector('#confirm-password'));
 		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
 		if(password != confirmPassword.value) {
 			warning.text = "Passwords don't match";
