@@ -2,16 +2,27 @@ div {
     font-size: 12pt;
     font-family: 'Lato', sans-serif;
     margin: 3px;
+    color:#000;
 }
 
 .greeting {
+    text-align: center;
     font-size: 14pt;
+    width:100%;
+    display:inline-block;
+    color:#4b2e4c;
     font-family: 'Fredoka One', cursive;
 }
 
 ur-panel {
-    padding: 20px;
+    padding: 30px;
     padding-bottom: 10px;
+    width:300px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .logo {
@@ -58,26 +69,26 @@ input {
 #loginsubmit {
     display:flex;
     flex-direction: row;
-    margin: 0;
 }
 
-#loginsubmit #loginbutton {
+#loginsubmit ur-button{
     flex: 1;
+    text-align: center;
 }
+
+
 
 #social {
+    display: flex;
     flex: 1;
     padding-top: 10px;
     border-top: 1px solid #ccc;
 }
 
 #social > ur-button {
-    display: inline;
-}
-
-#social #facebook {
-    margin-left: 10px;
-    margin-right: 10px;
+    text-align: center;
+    flex:1;
+    flex-direction: row;
 }
 
 #facebook /deep/ *{
@@ -99,12 +110,15 @@ input {
     margin-left: auto;
     margin-right: auto;
 }
+#createuser, #passwordReset {
+    text-align:center;
+}
 
 #createuserbutton {
     margin-top: 20px;
 }
 
-#forgot-password {
+#forgot-password, #back-to-main {
     text-align:center;
     margin:0;
     margin-top: 10px;
@@ -114,10 +128,11 @@ input {
     cursor: pointer;
 }
 
-#warning {
-    height:1.5em;
+#warning, #password-warning {
     margin:0;
-    margin-top:-6px;
+    margin-top: -0.5em;
+    padding-bottom: 0.5em;
+    vertical-align: middle;
     text-align: center;
     color: #a60000;
     font-size: 0.8em;

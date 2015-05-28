@@ -2,7 +2,7 @@
 <link rel="import" href="../../../packages/polymer/polymer.html">
 <link rel="import" href="../../../packages/cou_toolkit/toolkit/toolkit.html">
 
-<polymer-element name="ur-login" attributes="serveraddress serverwebsocket newuser">
+<polymer-element name="ur-login" attributes="server websocket base">
 	<template>
 		<link rel="stylesheet" href="login.css">
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
@@ -14,16 +14,22 @@
 				<span class="greeting">It's good to see you, {{username}}</span>
 			</template>
 
-			<template if="{{!newUser && !newSignup && !loggedIn}}">
+			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn}}">
 				<div on-keydown="{{loginAttempt}}" id="loginscreen">
 					<div id="top">
 						<div id="login">
-							<div id="warning" class="red">warning</div>
 							<input type="email" value="{{email}}" placeholder="Email">
 							<input type="password" value="{{password}}" placeholder="Password">
+
+							<template if="{{passwordConfirmation}}">
+								<input type="password" placeholder="Confirm Password">
+							</template>
+
+
+							<div id="warning"></div>
 							<div id="loginsubmit">
-								<ur-button id="loginbutton" class="{{waiting?'waiting':''}}" on-click="{{loginAttempt}}"><i class="fa fa-sign-in"></i> Log In</ur-button>
-								<ur-button class="{{waiting?'waiting':''}}" on-click="{{verifyEmail}}"><i class="fa fa-pencil"></i> Sign Up</ur-button>
+								<ur-button id="loginbutton" big="true" class="{{waiting?'waiting':''}}" on-click="{{loginAttempt}}"><i class="fa fa-sign-in"></i> Log In</ur-button>
+								<ur-button class="{{waiting?'waiting':''}}" big="true" on-click="{{verifyEmail}}"><i class="fa fa-pencil"></i> Sign Up</ur-button>
 							</div>
 						</div>
 					</div>
@@ -34,7 +40,7 @@
 							<ur-button id="github" theme="light" provider="github" on-click="{{oauthLogin}}"><i class="fa fa-github"></i> GitHub</ur-button>
 						</div>
 					</div>
-					<div id="forgot-password">Forgot your password?</div>
+					<div id="forgot-password" on-click="{{togglePassword}}">Forgot your password?</div>
 				</div>
 			</template>
 
@@ -52,11 +58,33 @@
 				<div on-keydown="{{usernameSubmit}}" id="createuser">
 					<div class="greeting">Hey, a new face!</div>
 					<div>What do you want to be called?</div><br>
-					<input type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
-					<input type="text" placeholder="Email" value="{{email}}" disabled>
-					<input type="password" placeholder="Create Password" value="{{newPassword}}">
-					<ur-button id="createuserbutton" big="true" theme="success" on-click="{{usernameSubmit}}">Submit</ur-button>
+					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
+					<ur-button id="createuserbutton" big="true" theme="light" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
 				</div>
+			</template>
+
+			<template if="{{forgotPassword}}">
+				<div id="passwordReset">
+					<div class="greeting">Password Reset</div>
+
+					<template if="{{!resetStageTwo}}">
+						<div>Enter your email</div>
+						<input type="text" placeholder="Email" value="{{email}}">
+					</template>
+
+					<template if="{{resetStageTwo}}">
+						<div>Get an email?</div>
+						<input id="temp-password" type="password" placeholder="Temporary Password">
+						<div>Enter your new Password</div>
+
+						<input id="new-password-1" type="password" placeholder="New Password">
+						<input id="new-password-2" type="password" placeholder="Confirm New Password">
+						<div id="password-warning"></div>
+					</template>
+
+					<ur-button id="resetButton" theme="warn" on-click="{{resetPassword}}">Submit</ur-button>
+				</div>
+				<div id="back-to-main" on-click="{{togglePassword}}">Go back?</div>
 			</template>
 
 		</ur-panel>

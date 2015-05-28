@@ -8,13 +8,17 @@ import 'dart:convert';
 
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
-	@published String server, socket, base;
-	@published bool  newUser = false;
+	@published String server, websocket, base;
+	@observable bool  newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
 	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
-	@observable String username, email, password, newUsername = '', newPassword = '';
+	@observable String newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
+
+	@observable String username ='';
+	@observable String email ='';
+	@observable String password = '';
 
 	UrLogin.created() : super.created() {
 		firebase = new Firebase("https://$base.firebaseio.com");
@@ -23,6 +27,11 @@ class UrLogin extends PolymerElement {
 			username = window.localStorage['username'];
 			new Timer(new Duration(seconds:1), () => relogin());
 		}
+	}
+
+	togglePassword() {
+		forgotPassword = !forgotPassword;
+		resetStageTwo = false;
 	}
 
 	relogin() async {
@@ -139,19 +148,31 @@ class UrLogin extends PolymerElement {
 
 	verifyEmail(event, detail, target) async
 	{
+		Element warning = shadowRoot.querySelector('#warning');
+		warning.text = '';
+
+		// display password confirmation
+		if (!passwordConfirmation) {
+			passwordConfirmation = true;
+		}
+
+		// not an email
 		if(!email.contains('@')) {
-			invalidEmail = true;
+			warning.text = 'Invalid email';
 			return;
 		}
-		else {
-			invalidEmail = false;
-		}
+
+		// password too short
 		if(password.length < 6) {
-			passwordTooShort = true;
+			warning.text = 'Password too short';
 			return;
 		}
-		else {
-			passwordTooShort = false;
+
+		// passwords don't match
+		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
+		if(password != confirmPassword.value) {
+			warning.text = "Passwords don't match";
+			return;
 		}
 
 		if(!_enterKey(event))
@@ -178,7 +199,7 @@ class UrLogin extends PolymerElement {
 			return;
 		}
 
-		WebSocket ws = new WebSocket(socket + "/awaitVerify");
+		WebSocket ws = new WebSocket(websocket + "/awaitVerify");
 		ws.onOpen.first.then((_) {
 			Map map = {'email':email};
 			ws.send(JSON.encode(map));
@@ -216,5 +237,36 @@ class UrLogin extends PolymerElement {
 
 			waiting = false;
 		});
+	}
+
+
+
+	resetPassword() {
+		if (!resetStageTwo) {
+			firebase.resetPassword({'email': email});
+			resetStageTwo = true;
+			return;
+		}
+		else {
+			InputElement newPasswordElement = shadowRoot.querySelector('#new-password-1');
+			InputElement confirmationElement = shadowRoot.querySelector('#new-password-2');
+
+			Element warning = shadowRoot.querySelector('#password-warning');
+
+			if (newPasswordElement.value != confirmationElement.value) {
+				warning.text = "Passwords don't match";
+				return;
+			}
+
+			String tempPass = (shadowRoot.querySelector('#temp-password') as InputElement).value;
+			String newPass = newPasswordElement.value;
+
+			firebase.changePassword({
+				'email': email,
+				'oldPassword': tempPass,
+				'newPassword': newPass
+			}).catchError(print);
+			togglePassword();
+		}
 	}
 }
