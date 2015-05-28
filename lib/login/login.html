@@ -2,13 +2,13 @@
 <link rel="import" href="../../../packages/polymer/polymer.html">
 <link rel="import" href="../../../packages/cou_toolkit/toolkit/toolkit.html">
 
-<polymer-element name="mode-login" attributes="serveraddress serverwebsocket newuser">
+<polymer-element name="ur-login" attributes="serveraddress serverwebsocket newuser">
 	<template>
 		<link rel="stylesheet" href="login.css">
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 
 		<ur-panel class="splash" id="user-login">
-			<img src="../images/logo.svg" class="logo"><br>
+			<img src="logo.svg" class="logo"><br>
 
 			<template if="{{loggedIn}}">
 				<span class="greeting">It's good to see you, {{username}}</span>
@@ -18,35 +18,23 @@
 				<div on-keydown="{{loginAttempt}}" id="loginscreen">
 					<div id="top">
 						<div id="login">
+							<div id="warning" class="red">warning</div>
 							<input type="email" value="{{email}}" placeholder="Email">
 							<input type="password" value="{{password}}" placeholder="Password">
 							<div id="loginsubmit">
 								<ur-button id="loginbutton" class="{{waiting?'waiting':''}}" on-click="{{loginAttempt}}"><i class="fa fa-sign-in"></i> Log In</ur-button>
 								<ur-button class="{{waiting?'waiting':''}}" on-click="{{verifyEmail}}"><i class="fa fa-pencil"></i> Sign Up</ur-button>
 							</div>
-							<div id="msg">
-								<template if="{{waitingOnEmail}}">
-									<span class="red">DON'T CLOSE THIS WINDOW</span><br>
-									Please check your email.<br>
-								</template>
-								<template if="{{invalidEmail}}">
-									Please enter a valid email.
-								</template>
-								<template if="{{passwordTooShort}}">
-										New passwords need to be
-										<br>
-										longer than 6 characters
-								</template>
-							</div>
 						</div>
 					</div>
 					<div id="bottom">
 						<div id="social">
-							<ur-button theme="light" provider="google" on-click="{{oauthLogin}}"><i class="fa fa-google"></i> Google</ur-button>
+							<ur-button id="google" theme="light" provider="google" on-click="{{oauthLogin}}"><i class="fa fa-google"></i> Google</ur-button>
 							<ur-button id="facebook" theme="light" provider="facebook" on-click="{{oauthLogin}}"><i class="fa fa-facebook"></i> Facebook</ur-button>
-							<ur-button theme="light" provider="github" on-click="{{oauthLogin}}"><i class="fa fa-github"></i> GitHub</ur-button>
+							<ur-button id="github" theme="light" provider="github" on-click="{{oauthLogin}}"><i class="fa fa-github"></i> GitHub</ur-button>
 						</div>
 					</div>
+					<div id="forgot-password">Forgot your password?</div>
 				</div>
 			</template>
 

@@ -10,7 +10,8 @@ div {
 }
 
 ur-panel {
-    padding: 30px;
+    padding: 20px;
+    padding-bottom: 10px;
 }
 
 .logo {
@@ -29,6 +30,12 @@ input {
     margin-bottom: 5px;
     display: block;
     width: 100%;
+    font-size: 15px;
+    background-color: #eee;
+    height: 16px;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: 5px;
+    font-family: 'Lato', sans-serif;
 }
 
 #loginscreen {
@@ -49,13 +56,13 @@ input {
 }
 
 #loginsubmit {
-    display: flex;
+    display:flex;
     flex-direction: row;
     margin: 0;
 }
 
 #loginsubmit #loginbutton {
-    margin-right: 5px;
+    flex: 1;
 }
 
 #social {
@@ -73,6 +80,21 @@ input {
     margin-right: 10px;
 }
 
+#facebook /deep/ *{
+    background:#3B5999;
+    color:#fff;
+}
+
+#google /deep/ *{
+    background:#d34836;
+    color:#fff;
+}
+
+#github /deep/ *{
+    background:#333;
+    color:#fff;
+}
+
 #createuser input {
     margin-left: auto;
     margin-right: auto;
@@ -82,7 +104,21 @@ input {
     margin-top: 20px;
 }
 
-#msg {
+#forgot-password {
+    text-align:center;
+    margin:0;
     margin-top: 10px;
-    text-align: left;
+    text-decoration: underline;
+    color:#666;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+#warning {
+    height:1.5em;
+    margin:0;
+    margin-top:-6px;
+    text-align: center;
+    color: #a60000;
+    font-size: 0.8em;
 }

@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Test</title>
 
-    <link rel="import" href="packages/cou_login/ur-login.html">
+    <link rel="import" href="packages/cou_login/login/login.html">
 
     <script src="https://cdn.firebase.com/js/client/2.2.2/firebase.js"></script>
 </head>
-<body>
+<body unresolved>
 
-<ur-login serveraddress="https://server.childrenofur.com:8383" serverwebsocket="ws://server.childrenofur.com:8484"></ur-login>
+<ur-login
+        server="https://server.childrenofur.com:8383"
+        socket="ws://server.childrenofur.com:8484"
+        base="blinding-fire-920">
+</ur-login>
 
 <script type="application/dart">export 'package:polymer/init.dart';</script>
 </body>

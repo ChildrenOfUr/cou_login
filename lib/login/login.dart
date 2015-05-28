@@ -6,12 +6,9 @@ import 'package:firebase/firebase.dart';
 import 'dart:async';
 import 'dart:convert';
 
-// import the parent component.
-import '../ur-login.dart';
-
-@CustomTag('mode-login')
+@CustomTag('ur-login')
 class UrLogin extends PolymerElement {
-	@published String serveraddress, serverwebsocket;
+	@published String server, socket, base;
 	@published bool  newUser = false;
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
 	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
@@ -20,7 +17,7 @@ class UrLogin extends PolymerElement {
 	Map serverdata;
 
 	UrLogin.created() : super.created() {
-		firebase = new Firebase("https://blinding-fire-920.firebaseio.com");
+		firebase = new Firebase("https://$base.firebaseio.com");
 		if(window.localStorage.containsKey('username')) {
 			loggedIn = true;
 			username = window.localStorage['username'];
@@ -34,7 +31,7 @@ class UrLogin extends PolymerElement {
 			String email = window.localStorage['authEmail'];
 			await firebase.authWithCustomToken(token);
 
-			HttpRequest request = await HttpRequest.request(serveraddress + "/auth/getSession", method: "POST",
+			HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
 			                                                requestHeaders: {"content-type": "application/json"},
 			                                                sendData: JSON.encode({'email':email}));
 			dispatchEvent(new CustomEvent('loginSuccess', detail: JSON.decode(request.response)));
@@ -108,7 +105,7 @@ class UrLogin extends PolymerElement {
 
 	Future<Map> getSession(String email) async
 	{
-		HttpRequest request = await HttpRequest.request(serveraddress + "/auth/getSession", method: "POST",
+		HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
 		                                                requestHeaders: {"content-type": "application/json"},
 		                                                sendData: JSON.encode({'email':email}));
 		window.localStorage['authToken'] = firebase.getAuth()['token'];
@@ -168,7 +165,7 @@ class UrLogin extends PolymerElement {
 
 		Timer tooLongTimer = new Timer(new Duration(seconds: 5), () => timedout = true);
 
-		HttpRequest request = await HttpRequest.request(serveraddress + "/auth/verifyEmail", method: "POST",
+		HttpRequest request = await HttpRequest.request(server + "/auth/verifyEmail", method: "POST",
 		                                                requestHeaders: {"content-type": "application/json"},
 		                                                sendData: JSON.encode({'email':email}));
 
@@ -181,7 +178,7 @@ class UrLogin extends PolymerElement {
 			return;
 		}
 
-		WebSocket ws = new WebSocket(serverwebsocket + "/awaitVerify");
+		WebSocket ws = new WebSocket(socket + "/awaitVerify");
 		ws.onOpen.first.then((_) {
 			Map map = {'email':email};
 			ws.send(JSON.encode(map));
