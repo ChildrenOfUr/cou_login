@@ -106,7 +106,7 @@ class UrLogin extends PolymerElement {
 				newUser = true;
 				existingUser = false;
 				await window.on['setUsername'].first;
-				username = newUsername;
+				sessionMap['playerName'] = newUsername;
 			}
 
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
