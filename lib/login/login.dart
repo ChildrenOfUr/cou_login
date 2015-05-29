@@ -101,16 +101,9 @@ class UrLogin extends PolymerElement {
 			await firebase.authWithPassword(credentials);
 			Map sessionMap = await getSession(email);
 
-			// closed window earlier, username not set.
-			if (sessionMap['playerName'] == '') {
-				newUser = true;
-				existingUser = false;
-				await window.on['setUsername'].first;
-				sessionMap['playerName'] = newUsername;
-			}
-
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
 			print('success');
+
 		}
 		catch(err) {
 			print(err);
@@ -140,7 +133,6 @@ class UrLogin extends PolymerElement {
 		if(!_enterKey(event))
 			return;
 
-		print(newUsername);
 		if(newUsername == '')
 			return;
 
@@ -180,7 +172,6 @@ class UrLogin extends PolymerElement {
 		}
 
 		// passwords don't match
-		print(shadowRoot.querySelector('#confirm-password'));
 		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
 		if(password != confirmPassword.value) {
 			warning.text = "Passwords don't match";
@@ -201,7 +192,6 @@ class UrLogin extends PolymerElement {
 		HttpRequest request = await HttpRequest.request(server + "/auth/verifyEmail", method: "POST",
 		                                                requestHeaders: {"content-type": "application/json"},
 		                                                sendData: JSON.encode({'email':email}));
-
 		tooLongTimer.cancel();
 
 		Map result = JSON.decode(request.response);
