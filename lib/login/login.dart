@@ -104,7 +104,6 @@ class UrLogin extends PolymerElement {
 
 			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
 			print('success');
-
 		}
 		catch(err) {
 			print(err);
