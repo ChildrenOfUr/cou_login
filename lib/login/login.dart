@@ -38,6 +38,7 @@ class UrLogin extends PolymerElement {
 		try {
 			String token = window.localStorage['authToken'];
 			String email = window.localStorage['authEmail'];
+
 			await firebase.authWithCustomToken(token);
 
 			HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
@@ -223,6 +224,9 @@ class UrLogin extends PolymerElement {
 					else {
 						newUser = true;
 						newUsername = username;
+						Map<String, String> credentials = {'email':email, 'password':password};
+						window.localStorage['authToken'] = (await firebase.authWithPassword(credentials))['token'];
+						window.localStorage['authEmail'] = map['serverdata']['playerEmail'];
 						serverdata = map['serverdata'];
 						print('new user');
 					}
