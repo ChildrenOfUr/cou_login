@@ -187,12 +187,13 @@ class UrLogin extends PolymerElement {
 		waiting = true;
 		waitingOnEmail = true;
 
-		Timer tooLongTimer = new Timer(new Duration(seconds: 5), () => timedout = true);
+
+		//Timer tooLongTimer = new Timer(new Duration(seconds: 5), () => timedout = true);
 
 		HttpRequest request = await HttpRequest.request(server + "/auth/verifyEmail", method: "POST",
 		                                                requestHeaders: {"content-type": "application/json"},
 		                                                sendData: JSON.encode({'email':email}));
-		tooLongTimer.cancel();
+		//tooLongTimer.cancel();
 
 		Map result = JSON.decode(request.response);
 		if(result['result'] != 'OK') {

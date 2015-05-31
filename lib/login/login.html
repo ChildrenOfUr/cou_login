@@ -18,11 +18,17 @@
 				<div on-keydown="{{loginAttempt}}" id="loginscreen">
 					<div id="top">
 						<div id="login">
-							<input type="email" value="{{email}}" placeholder="Email">
-							<input type="password" value="{{password}}" placeholder="Password">
+							<template if="{{waitingOnEmail}}">
+								<div id="waiting-warning">
+									Please check your email,<br>
+									and keep this window open.
+								</div>
+							</template>
+							<input type="email" class="{{waiting?'waiting':''}}" value="{{email}}" placeholder="Email">
+							<input type="password" class="{{waiting?'waiting':''}}" value="{{password}}" placeholder="Password">
 
 							<template if="{{passwordConfirmation}}">
-								<input id="confirm-password" type="password" placeholder="Confirm Password">
+								<input id="confirm-password" class="{{waiting?'waiting':''}}" type="password" placeholder="Confirm Password">
 							</template>
 
 
@@ -35,9 +41,9 @@
 					</div>
 					<div id="bottom">
 						<div id="social">
-							<ur-button id="google" theme="light" provider="google" on-click="{{oauthLogin}}"><i class="fa fa-google"></i> Google</ur-button>
-							<ur-button id="facebook" theme="light" provider="facebook" on-click="{{oauthLogin}}"><i class="fa fa-facebook"></i> Facebook</ur-button>
-							<ur-button id="github" theme="light" provider="github" on-click="{{oauthLogin}}"><i class="fa fa-github"></i> GitHub</ur-button>
+							<ur-button id="google" class="{{waiting?'waiting':''}}" theme="light" provider="google" on-click="{{oauthLogin}}"><i class="fa fa-google"></i> Google</ur-button>
+							<ur-button id="facebook" class="{{waiting?'waiting':''}}" theme="light" provider="facebook" on-click="{{oauthLogin}}"><i class="fa fa-facebook"></i> Facebook</ur-button>
+							<ur-button id="github" class="{{waiting?'waiting':''}}" theme="light" provider="github" on-click="{{oauthLogin}}"><i class="fa fa-github"></i> GitHub</ur-button>
 						</div>
 					</div>
 					<div id="forgot-password" on-click="{{togglePassword}}">Forgot your password?</div>

@@ -128,7 +128,7 @@ input {
     cursor: pointer;
 }
 
-#warning, #password-warning {
+#warning, #password-warning, #waiting-warning {
     margin:0;
     margin-top: -0.5em;
     padding-bottom: 0.5em;
