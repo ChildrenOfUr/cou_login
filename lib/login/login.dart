@@ -107,6 +107,11 @@ class UrLogin extends PolymerElement {
 			print('success');
 		}
 		catch(err) {
+			Element warning = shadowRoot.querySelector('#warning');
+			String error = err.toString();
+			if (error.contains('Error: '))
+				error = error.replaceFirst('Error: ', '');
+			warning.text = error;
 			print(err);
 		}
 		finally
