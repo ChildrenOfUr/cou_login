@@ -5,6 +5,7 @@ import 'package:polymer/polymer.dart';
 import 'package:firebase/firebase.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:transmit/transmit.dart';
 
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
@@ -44,7 +45,7 @@ class UrLogin extends PolymerElement {
 			HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
 			                                                requestHeaders: {"content-type": "application/json"},
 			                                                sendData: JSON.encode({'email':email}));
-			dispatchEvent(new CustomEvent('loginSuccess', detail: JSON.decode(request.response)));
+			fireLoginSuccess(JSON.decode(request.response));
 			print('relogin() success');
 		}
 		catch(err) {
@@ -81,7 +82,7 @@ class UrLogin extends PolymerElement {
 
 			String email = response[provider]['email'];
 			Map sessionMap = await getSession(email);
-			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
+			fireLoginSuccess(sessionMap);
 		}
 		catch(err) {
 			print('failed login with $provider: $err');
@@ -102,7 +103,7 @@ class UrLogin extends PolymerElement {
 			await firebase.authWithPassword(credentials);
 			Map sessionMap = await getSession(email);
 
-			dispatchEvent(new CustomEvent('loginSuccess', detail: sessionMap));
+			fireLoginSuccess(sessionMap);
 			print('success');
 		}
 		catch(err) {
@@ -112,6 +113,20 @@ class UrLogin extends PolymerElement {
 		{
 			waiting = false;
 		}
+	}
+
+	fireLoginSuccess(var payload) async {
+		int times = 0;
+		print('sending success #$times');
+		times += 1;
+		dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
+		Timer acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
+			print('sending success #$times');
+			dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
+			times += 1;
+		});
+		new Service(['loginAcknowledged'],(m){print('canceling');acknowledgeTimer.cancel();});
+//		on['loginAcknowledged'].first.then((_) => acknowledgeTimer.cancel());
 	}
 
 	Future<Map> getSession(String email) async
@@ -137,7 +152,7 @@ class UrLogin extends PolymerElement {
 			return;
 
 		if(existingUser) {
-			dispatchEvent(new CustomEvent('loginSuccess', detail: serverdata));
+			fireLoginSuccess(serverdata);
 		}
 		else {
 			dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
@@ -230,7 +245,7 @@ class UrLogin extends PolymerElement {
 						serverdata = map['serverdata'];
 						print('new user');
 					}
-					dispatchEvent(new CustomEvent('loginSuccess', detail: map['serverdata']));
+					fireLoginSuccess(map['serverdata']);
 				}
 				catch(err) {
 					print("couldn't create user on firebase: $err");

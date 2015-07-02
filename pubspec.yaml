@@ -8,6 +8,10 @@ dependencies:
   core_elements: ">=0.7.1+2 <0.8.0"
   paper_elements: ">=0.7.1 <0.8.0"
   firebase: ">=0.5.0 <0.6.0"
+  transmit:
+    git:
+      ref: master
+      url: git://github.com/ChildrenOfUr/transmit.git
   cou_toolkit:
     git:
       ref: master
