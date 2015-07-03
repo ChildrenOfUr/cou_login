@@ -10,15 +10,15 @@ import 'package:transmit/transmit.dart';
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
 	@published String server, websocket, base;
-	@observable bool  newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
+	@observable bool newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
 	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
 	@observable String newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
 
-	@observable String username ='';
-	@observable String email ='';
+	@observable String username = '';
+	@observable String email = '';
 	@observable String password = '';
 
 	UrLogin.created() : super.created() {
@@ -83,11 +83,9 @@ class UrLogin extends PolymerElement {
 			String email = response[provider]['email'];
 			Map sessionMap = await getSession(email);
 			fireLoginSuccess(sessionMap);
-		}
-		catch(err) {
+		} catch(err) {
 			print('failed login with $provider: $err');
-		}
-		finally {
+		} finally {
 			waiting = false;
 		}
 	}
@@ -105,61 +103,56 @@ class UrLogin extends PolymerElement {
 
 			fireLoginSuccess(sessionMap);
 			print('success');
-		}
-		catch(err) {
+		} catch(err) {
 			Element warning = shadowRoot.querySelector('#warning');
 			String error = err.toString();
-			if (error.contains('Error: '))
+			if(error.contains('Error: '))
 				error = error.replaceFirst('Error: ', '');
 			warning.text = error;
 			print(err);
-		}
-		finally
-		{
+		} finally {
 			waiting = false;
 		}
 	}
 
 	fireLoginSuccess(var payload) async {
-		int times = 0;
-		print('sending success #$times');
-		times += 1;
-		dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
-		Timer acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
-			print('sending success #$times');
-			dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
-			times += 1;
+		Timer acknowledgeTimer;
+		new Service(['loginAcknowledged'], (m) {
+			print('canceling success repeater');
+			acknowledgeTimer.cancel();
 		});
-		new Service(['loginAcknowledged'],(m){print('canceling');acknowledgeTimer.cancel();});
-//		on['loginAcknowledged'].first.then((_) => acknowledgeTimer.cancel());
+		acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
+			dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
+		});
+		dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
 	}
 
-	Future<Map> getSession(String email) async
-	{
+	Future<Map> getSession(String email) async {
 		HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
 		                                                requestHeaders: {"content-type": "application/json"},
 		                                                sendData: JSON.encode({'email':email}));
 		window.localStorage['authToken'] = firebase.getAuth()['token'];
 		window.localStorage['authEmail'] = email;
 		Map sessionMap = JSON.decode(request.response);
-		if(sessionMap['playerName'] != '')
+		if(sessionMap['playerName'] != '') {
 			window.localStorage['username'] = sessionMap['playerName'];
+		}
 
 		return sessionMap;
 	}
 
-	usernameSubmit(event, detail, target) async
-	{
-		if(!_enterKey(event))
+	usernameSubmit(event, detail, target) async {
+		if(!_enterKey(event)) {
 			return;
+		}
 
-		if(newUsername == '')
+		if(newUsername == '') {
 			return;
+		}
 
 		if(existingUser) {
 			fireLoginSuccess(serverdata);
-		}
-		else {
+		} else {
 			dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
 		}
 	}
@@ -168,8 +161,7 @@ class UrLogin extends PolymerElement {
 		newSignup = true;
 	}
 
-	verifyEmail(event, detail, target) async
-	{
+	verifyEmail(event, detail, target) async {
 		Element warning = shadowRoot.querySelector('#warning');
 		warning.text = '';
 
@@ -186,7 +178,7 @@ class UrLogin extends PolymerElement {
 		}
 
 		// display password confirmation
-		if (!passwordConfirmation) {
+		if(!passwordConfirmation) {
 			passwordConfirmation = true;
 			return;
 		}
@@ -198,11 +190,13 @@ class UrLogin extends PolymerElement {
 			return;
 		}
 
-		if(!_enterKey(event))
+		if(!_enterKey(event)) {
 			return;
+		}
 
-		if(email == '')
+		if(email == '') {
 			return;
+		}
 
 		waiting = true;
 		waitingOnEmail = true;
@@ -240,8 +234,7 @@ class UrLogin extends PolymerElement {
 						window.localStorage['username'] = username;
 						//email already exists, make them choose a password
 						existingUser = true;
-					}
-					else {
+					} else {
 						newUser = true;
 						newUsername = username;
 						Map<String, String> credentials = {'email':email, 'password':password};
@@ -251,12 +244,10 @@ class UrLogin extends PolymerElement {
 						print('new user');
 					}
 					fireLoginSuccess(map['serverdata']);
-				}
-				catch(err) {
+				} catch(err) {
 					print("couldn't create user on firebase: $err");
 				}
-			}
-			else {
+			} else {
 				print('problem verifying email address: ${map['result']}');
 
 			}
@@ -265,21 +256,18 @@ class UrLogin extends PolymerElement {
 		});
 	}
 
-
-
 	resetPassword() {
-		if (!resetStageTwo) {
+		if(!resetStageTwo) {
 			firebase.resetPassword({'email': email});
 			resetStageTwo = true;
 			return;
-		}
-		else {
+		} else {
 			InputElement newPasswordElement = shadowRoot.querySelector('#new-password-1');
 			InputElement confirmationElement = shadowRoot.querySelector('#new-password-2');
 
 			Element warning = shadowRoot.querySelector('#password-warning');
 
-			if (newPasswordElement.value != confirmationElement.value) {
+			if(newPasswordElement.value != confirmationElement.value) {
 				warning.text = "Passwords don't match";
 				return;
 			}
@@ -288,10 +276,10 @@ class UrLogin extends PolymerElement {
 			String newPass = newPasswordElement.value;
 
 			firebase.changePassword({
-				'email': email,
-				'oldPassword': tempPass,
-				'newPassword': newPass
-			}).catchError(print);
+				                        'email': email,
+				                        'oldPassword': tempPass,
+				                        'newPassword': newPass
+			                        }).catchError(print);
 			togglePassword();
 		}
 	}
