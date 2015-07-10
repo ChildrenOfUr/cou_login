@@ -1,6 +1,7 @@
 library login;
 
 import 'dart:html';
+import 'dart:math';
 import 'package:polymer/polymer.dart';
 import 'package:firebase/firebase.dart';
 import 'dart:async';
@@ -15,6 +16,21 @@ class UrLogin extends PolymerElement {
 	@observable String newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
+	Element greetingPrefix;
+	List<String> greetingPrefixes = [ // Displayed as: greeting, username
+		"Good to see you",
+		"Greetings",
+		"Hello",
+		"Hello there",
+		"Have fun",
+		"Hi",
+		"Hi there",
+		"It's good to see you",
+		"Nice of you to join us",
+		"Thanks for joining us",
+		"Welcome",
+		"Welcome back"
+	];
 
 	@observable String username ='';
 	@observable String email ='';
@@ -23,6 +39,8 @@ class UrLogin extends PolymerElement {
 	UrLogin.created() : super.created() {
 		firebase = new Firebase("https://$base.firebaseio.com");
 		if(window.localStorage.containsKey('username')) {
+			String greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
+			shadowRoot.querySelector("#greeting-prefix").text = greetingPrefix;
 			loggedIn = true;
 			username = window.localStorage['username'];
 			new Timer(new Duration(seconds:1), () => relogin());
