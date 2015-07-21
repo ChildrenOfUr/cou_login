@@ -23,10 +23,18 @@ class UrLogin extends PolymerElement {
 
 	UrLogin.created() : super.created() {
 		firebase = new Firebase("https://$base.firebaseio.com");
-		if(window.localStorage.containsKey('username')) {
-			loggedIn = true;
-			username = window.localStorage['username'];
-			new Timer(new Duration(seconds:1), () => relogin());
+		if (window.localStorage.containsKey('username')) {
+			//let's see if our firebase auth is current
+			Map auth = firebase.getAuth();
+			DateTime expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
+			if (expires.compareTo(new DateTime.now()) > 0) {
+				loggedIn = true;
+				username = window.localStorage['username'];
+				new Timer(new Duration(seconds:1), () => relogin());
+			} else {
+				//it has expired already
+				window.localStorage.remove('username');
+			}
 		}
 	}
 
@@ -48,7 +56,7 @@ class UrLogin extends PolymerElement {
 			fireLoginSuccess(JSON.decode(request.response));
 			print('relogin() success');
 		}
-		catch(err) {
+		catch (err) {
 			print('error relogin(): $err');
 
 			//maybe the auth token has expired, present the prompt again
@@ -59,20 +67,19 @@ class UrLogin extends PolymerElement {
 
 	bool _enterKey(event) {
 		//detect enter key
-		if(event is KeyboardEvent) {
+		if (event is KeyboardEvent) {
 			int code = (event as KeyboardEvent).keyCode;
-			if(code != 13)
+			if (code != 13)
 				return false;
 		}
 
 		return true;
 	}
 
-	oauthLogin(event, detail, Element target) async
-	{
+	oauthLogin(event, detail, Element target) async {
 		String provider = target.attributes['provider'];
 		String scope = 'email';
-		if(provider == 'github')
+		if (provider == 'github')
 			scope = 'user:email';
 
 		waiting = true;
@@ -83,18 +90,23 @@ class UrLogin extends PolymerElement {
 			String email = response[provider]['email'];
 			Map sessionMap = await getSession(email);
 			fireLoginSuccess(sessionMap);
-		} catch(err) {
+		} catch (err) {
 			print('failed login with $provider: $err');
 		} finally {
 			waiting = false;
 		}
 	}
 
+	Future<Map> _isEmailVerified(String email) async {
+		return {'ok':'no'};
+	}
+
 	loginAttempt(event, detail, target) async {
-		if(!_enterKey(event))
+		if (!_enterKey(event))
 			return;
 
 		waiting = true;
+
 		Map<String, String> credentials = {'email':email, 'password':password};
 
 		try {
@@ -103,13 +115,23 @@ class UrLogin extends PolymerElement {
 
 			fireLoginSuccess(sessionMap);
 			print('success');
-		} catch(err) {
-			Element warning = shadowRoot.querySelector('#warning');
-			String error = err.toString();
-			if(error.contains('Error: '))
-				error = error.replaceFirst('Error: ', '');
-			warning.text = error;
-			print(err);
+		} catch (err) {
+			//check to see if they have already verified their email (game window was closed when they clicked the link)
+			HttpRequest request = await HttpRequest.request(server + "/auth/isEmailVerified", method: "POST",
+			                                                requestHeaders: {"content-type": "application/json"},
+			                                                sendData: JSON.encode({'email':email}));
+			Map map = JSON.decode(request.response);
+			if (map['result'] == 'success') {
+				await _createNewUser(map);
+			} else {
+				//we've never seen them before or they haven't yet verified their email
+				Element warning = shadowRoot.querySelector('#warning');
+				String error = err.toString();
+				if (error.contains('Error: '))
+					error = error.replaceFirst('Error: ', '');
+				warning.text = error;
+				print(err);
+			}
 		} finally {
 			waiting = false;
 		}
@@ -134,7 +156,7 @@ class UrLogin extends PolymerElement {
 		window.localStorage['authToken'] = firebase.getAuth()['token'];
 		window.localStorage['authEmail'] = email;
 		Map sessionMap = JSON.decode(request.response);
-		if(sessionMap['playerName'] != '') {
+		if (sessionMap['playerName'] != '') {
 			window.localStorage['username'] = sessionMap['playerName'];
 		}
 
@@ -142,15 +164,15 @@ class UrLogin extends PolymerElement {
 	}
 
 	usernameSubmit(event, detail, target) async {
-		if(!_enterKey(event)) {
+		if (!_enterKey(event)) {
 			return;
 		}
 
-		if(newUsername == '') {
+		if (newUsername == '') {
 			return;
 		}
 
-		if(existingUser) {
+		if (existingUser) {
 			fireLoginSuccess(serverdata);
 		} else {
 			dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
@@ -166,35 +188,35 @@ class UrLogin extends PolymerElement {
 		warning.text = '';
 
 		// not an email
-		if(!email.contains('@')) {
+		if (!email.contains('@')) {
 			warning.text = 'Invalid email';
 			return;
 		}
 
 		// password too short
-		if(password.length < 6) {
+		if (password.length < 6) {
 			warning.text = 'Password too short';
 			return;
 		}
 
 		// display password confirmation
-		if(!passwordConfirmation) {
+		if (!passwordConfirmation) {
 			passwordConfirmation = true;
 			return;
 		}
 
 		// passwords don't match
 		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
-		if(password != confirmPassword.value) {
+		if (password != confirmPassword.value) {
 			warning.text = "Passwords don't match";
 			return;
 		}
 
-		if(!_enterKey(event)) {
+		if (!_enterKey(event)) {
 			return;
 		}
 
-		if(email == '') {
+		if (email == '') {
 			return;
 		}
 
@@ -210,7 +232,7 @@ class UrLogin extends PolymerElement {
 		//tooLongTimer.cancel();
 
 		Map result = JSON.decode(request.response);
-		if(result['result'] != 'OK') {
+		if (result['result'] != 'OK') {
 			waiting = false;
 			print(result);
 			return;
@@ -223,30 +245,8 @@ class UrLogin extends PolymerElement {
 		});
 		ws.onMessage.first.then((MessageEvent event) async {
 			Map map = JSON.decode(event.data);
-			if(map['result'] == 'success') {
-				try {
-					//create the user in firebase
-					await firebase.createUser({'email':email, 'password':password});
-
-					newPassword = password;
-					if(map['serverdata']['playerName'].trim() != '') {
-						username = map['serverdata']['playerName'].trim();
-						window.localStorage['username'] = username;
-						//email already exists, make them choose a password
-						existingUser = true;
-					} else {
-						newUser = true;
-						newUsername = username;
-						Map<String, String> credentials = {'email':email, 'password':password};
-						window.localStorage['authToken'] = (await firebase.authWithPassword(credentials))['token'];
-						window.localStorage['authEmail'] = map['serverdata']['playerEmail'];
-						serverdata = map['serverdata'];
-						print('new user');
-					}
-					fireLoginSuccess(map['serverdata']);
-				} catch(err) {
-					print("couldn't create user on firebase: $err");
-				}
+			if (map['result'] == 'success') {
+				await _createNewUser(map);
 			} else {
 				print('problem verifying email address: ${map['result']}');
 
@@ -256,8 +256,34 @@ class UrLogin extends PolymerElement {
 		});
 	}
 
+	Future _createNewUser(Map map) async {
+		try {
+			//create the user in firebase
+			await firebase.createUser({'email':email, 'password':password});
+
+			newPassword = password;
+			if (map['serverdata']['playerName'].trim() != '') {
+				username = map['serverdata']['playerName'].trim();
+				window.localStorage['username'] = username;
+				//email already exists, make them choose a password
+				existingUser = true;
+			} else {
+				newUser = true;
+				newUsername = username;
+				Map<String, String> credentials = {'email':email, 'password':password};
+				window.localStorage['authToken'] = (await firebase.authWithPassword(credentials))['token'];
+				window.localStorage['authEmail'] = map['serverdata']['playerEmail'];
+				serverdata = map['serverdata'];
+				print('new user');
+			}
+			fireLoginSuccess(map['serverdata']);
+		} catch (err) {
+			print("couldn't create user on firebase: $err");
+		}
+	}
+
 	resetPassword() {
-		if(!resetStageTwo) {
+		if (!resetStageTwo) {
 			firebase.resetPassword({'email': email});
 			resetStageTwo = true;
 			return;
@@ -267,7 +293,7 @@ class UrLogin extends PolymerElement {
 
 			Element warning = shadowRoot.querySelector('#password-warning');
 
-			if(newPasswordElement.value != confirmationElement.value) {
+			if (newPasswordElement.value != confirmationElement.value) {
 				warning.text = "Passwords don't match";
 				return;
 			}
