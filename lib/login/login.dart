@@ -97,13 +97,14 @@ class UrLogin extends PolymerElement {
 		}
 	}
 
-	Future<Map> _isEmailVerified(String email) async {
-		return {'ok':'no'};
-	}
-
 	loginAttempt(event, detail, target) async {
 		if (!_enterKey(event))
 			return;
+
+		if(passwordConfirmation) {
+			verifyEmail(event,detail,target);
+			return;
+		}
 
 		waiting = true;
 
@@ -116,14 +117,18 @@ class UrLogin extends PolymerElement {
 			fireLoginSuccess(sessionMap);
 			print('success');
 		} catch (err) {
-			//check to see if they have already verified their email (game window was closed when they clicked the link)
-			HttpRequest request = await HttpRequest.request(server + "/auth/isEmailVerified", method: "POST",
-			                                                requestHeaders: {"content-type": "application/json"},
-			                                                sendData: JSON.encode({'email':email}));
-			Map map = JSON.decode(request.response);
-			if (map['result'] == 'success') {
-				await _createNewUser(map);
-			} else {
+			try {
+				//check to see if they have already verified their email (game window was closed when they clicked the link)
+				HttpRequest request = await HttpRequest.request(server + "/auth/isEmailVerified", method: "POST",
+				                                                requestHeaders: {"content-type": "application/json"},
+				                                                sendData: JSON.encode({'email':email}));
+				Map map = JSON.decode(request.response);
+				if (map['result'] == 'success') {
+					await _createNewUser(map);
+				} else {
+					throw(err);
+				}
+			} catch(err) {
 				//we've never seen them before or they haven't yet verified their email
 				Element warning = shadowRoot.querySelector('#warning');
 				String error = err.toString();
@@ -171,6 +176,8 @@ class UrLogin extends PolymerElement {
 		if (newUsername == '') {
 			return;
 		}
+
+		waiting = true;
 
 		if (existingUser) {
 			fireLoginSuccess(serverdata);
