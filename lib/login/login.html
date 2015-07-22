@@ -65,7 +65,7 @@
 					<div class="greeting">Hey, a new face!</div>
 					<div>What do you want to be called?</div><br>
 					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
-					<ur-button id="createuserbutton" big="true" theme="light" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
+					<ur-button id="createuserbutton" big="true" theme="light" class="{{waiting?'waiting':''}}" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
 				</div>
 			</template>
 
