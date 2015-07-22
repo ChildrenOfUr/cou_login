@@ -11,7 +11,7 @@
 			<img src="logo.svg" class="logo"><br>
 
 			<template if="{{loggedIn}}">
-				<span class="greeting"><span id="greeting-prefix"></span>, {{username}}</span>
+				<span class="greeting">{{greetingPrefix}}, {{username}}</span>
 			</template>
 
 			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn}}">

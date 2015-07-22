@@ -17,7 +17,7 @@ class UrLogin extends PolymerElement {
 	@observable String newUsername = '', newPassword = '';
 	Firebase firebase;
 	Map serverdata;
-	Element greetingPrefix;
+	String greetingPrefix = "Good to see you";
 	List<String> greetingPrefixes = [ // Displayed as: greeting, username
 		"Good to see you",
 		"Greetings",
@@ -44,8 +44,7 @@ class UrLogin extends PolymerElement {
 			Map auth = firebase.getAuth();
 			DateTime expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
 			if (expires.compareTo(new DateTime.now()) > 0) {
-				String greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
-				shadowRoot.querySelector("#greeting-prefix").text = greetingPrefix;
+				greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
 				loggedIn = true;
 				username = window.localStorage['username'];
 				new Timer(new Duration(seconds:1), () => relogin());
