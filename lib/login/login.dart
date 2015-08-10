@@ -15,6 +15,7 @@ class UrLogin extends PolymerElement {
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
 	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
 	@observable String newUsername = '', newPassword = '';
+	@observable String avatarUrl = "http://c2.glitch.bz/avatars/2011-10-27/90fca08fc4f21c9914000944e9ba4f8a_1319728502_base.png";
 	Firebase firebase;
 	Map serverdata;
 	String greetingPrefix = "Good to see you";
@@ -36,6 +37,9 @@ class UrLogin extends PolymerElement {
 	@observable String username = '';
 	@observable String email = '';
 	@observable String password = '';
+
+	Timer getAvatarTimer;
+	bool gettingAvatar = false;
 
 	UrLogin.created() : super.created() {
 		firebase = new Firebase("https://$base.firebaseio.com");
@@ -205,6 +209,19 @@ class UrLogin extends PolymerElement {
 
 	void signup(event, detail, target) {
 		newSignup = true;
+	}
+
+	updateAvatarPreview(event, detail, target) {
+		print("change");
+		if (newUsername != "" && !gettingAvatar) {
+			HttpRequest.getString("http://robertmcdermot.com:8181/getSpritesheets?username=$newUsername").then((String json) {
+				avatarUrl = JSON.decode(json)["base"];
+				print("got avatar");
+			});
+			getAvatarTimer = new Timer(new Duration(seconds: 3), () {
+				gettingAvatar = false;
+			});
+		}
 	}
 
 	verifyEmail(event, detail, target) async {

@@ -19,7 +19,7 @@
 					<div id="top">
 						<div id="login">
 							<template if="{{waitingOnEmail}}">
-								<div id="waiting-warning">
+								<div id="waiting-email">
 									Please check your email.
 								</div>
 							</template>
@@ -63,8 +63,18 @@
 				<div on-keydown="{{usernameSubmit}}" id="createuser">
 					<div class="greeting">Hey, a new face!</div>
 					<div>What do you want to be called?</div><br>
-					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
+					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" on-change="{{updateAvatarPreview}}" disabled?="{{existingUser}}">
 					<ur-button id="createuserbutton" big="true" theme="light" class="{{waiting?'waiting':''}}" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
+					<div id="avatar-preview">
+						<div id="avatar-image">
+							<div style="background-image: url({{avatarUrl}});"></div>
+							<img src="youlabel.svg" class="logo">
+						</div>
+						<div>
+							<p class="small">Your avatar appearance is chosen by your username. If you had an account on Glitch, use the same username here to pull in your old avatar.</p>
+							<p class="small">We do not yet have avatar customization, but we will at a later date.</p>
+						</div>
+					</div>
 				</div>
 			</template>
 
