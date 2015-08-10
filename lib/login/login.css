@@ -147,16 +147,20 @@ input {
     flex-direction: row;
 }
 
-#avatar-preview * {
+#avatar-preview > * {
     flex: 1;
 }
 
-#avatar-image div {
+#avatar-left {
     height: 160px;
     background-position: top;
     background-repeat: no-repeat;
     background-size: cover;
     margin-top: 25px;
+}
+
+#avatar-container {
+    overflow: hidden;
 }
 
 .center {

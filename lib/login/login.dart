@@ -212,11 +212,20 @@ class UrLogin extends PolymerElement {
 	}
 
 	updateAvatarPreview(event, detail, target) {
-		print("change");
+		print("updateAvatarPreview");
 		if (newUsername != "" && !gettingAvatar) {
 			HttpRequest.getString("http://robertmcdermot.com:8181/getSpritesheets?username=$newUsername").then((String json) {
 				avatarUrl = JSON.decode(json)["base"];
-				print("got avatar");
+				ImageElement avatarData = new ImageElement()
+					..src = avatarUrl;
+				avatarData.onLoad.listen((_) {
+					shadowRoot.querySelector("#avatar-container").style
+						..width = (avatarData.clientWidth / 15).toString() + "px"
+						..height = (avatarData.clientHeight).toString() + "px";
+					shadowRoot.querySelector("#avatar-img").style
+						..width = (avatarData.naturalWidth).toString() + "px"
+						..height = (avatarData.naturalHeight).toString() + "px";
+				});
 			});
 			getAvatarTimer = new Timer(new Duration(seconds: 3), () {
 				gettingAvatar = false;
