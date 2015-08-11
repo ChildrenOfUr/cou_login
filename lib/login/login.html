@@ -63,18 +63,19 @@
 				<div on-keydown="{{usernameSubmit}}" id="createuser">
 					<div class="greeting">Hey, a new face!</div>
 					<div>What do you want to be called?</div><br>
-					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" on-change="{{updateAvatarPreview}}" disabled?="{{existingUser}}">
+					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
 					<ur-button id="createuserbutton" big="true" theme="light" class="{{waiting?'waiting':''}}" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
 					<div id="avatar-preview">
-						<div id="avatar-left">
+						<div id="avatar-left" on-click="{{updateAvatarPreview}}" title="Click to Refresh">
 							<div id="avatar-container">
-								<div id="avatar-img" style="background-image: url({{avatarUrl}});"></div>
+								<div id="avatar-img" style="background-image: url({{avatarUrl}}); width: 80px; height: 119px;"></div>
 							</div>
-							<img src="youlabel.svg" class="logo">
+							<img src="youlabel.svg">
 						</div>
 						<div>
-							<p class="small">Your avatar appearance is chosen by your username. If you had an account on Glitch, use the same username here to pull in your old avatar.</p>
-							<p class="small">We do not yet have avatar customization, but we will at a later date.</p>
+							<p class="small">If you had an account on Glitch, use the same username here to get your old avatar.</p>
+							<p class="small">Because we do not yet have avatar customization, usernames that didn't exist in Glitch will revert to our default appearance.</p>
+							<p class="blue">Click the preview to refresh it.</p>
 						</div>
 					</div>
 				</div>

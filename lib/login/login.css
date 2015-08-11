@@ -138,7 +138,8 @@ input {
     font-size: 0.8em;
 }
 
-#waiting-email {
+#waiting-email,
+.blue {
     color: #0061A6;
 }
 
@@ -156,11 +157,23 @@ input {
     background-position: top;
     background-repeat: no-repeat;
     background-size: cover;
-    margin-top: 25px;
+    position: relative;
+    left: -40px;
+    top: 30px;
+    cursor: pointer;
+}
+
+#avatar-left > img {
+    margin-left: 10px;
 }
 
 #avatar-container {
     overflow: hidden;
+    height: 150px;
+}
+
+#avatar-img {
+    background-repeat: no-repeat;
 }
 
 .center {
