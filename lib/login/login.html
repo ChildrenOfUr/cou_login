@@ -14,7 +14,11 @@
 				<span class="greeting">{{greetingPrefix}}, {{username}}</span>
 			</template>
 
-			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn}}">
+			<template if="{{serviceLoggedIn}}">
+				<span class="greeting">{{greetingPrefix}}</span>
+			</template>
+
+			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn && !serviceLoggedIn}}">
 				<div on-keydown="{{loginAttempt}}" id="loginscreen">
 					<div id="top">
 						<div id="login">

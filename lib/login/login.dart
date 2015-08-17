@@ -13,7 +13,7 @@ class UrLogin extends PolymerElement {
 	@published String server, gameServer = "http://server.childrenofur.com:8181", websocket, base;
 	@observable bool newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
-	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
+	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, serviceLoggedIn = false, passwordTooShort = false;
 	@observable String newUsername = '', newPassword = '';
 	@observable String avatarUrl = 'packages/cou_login/login/player_unknown.png';
 	Firebase firebase;
@@ -112,6 +112,7 @@ class UrLogin extends PolymerElement {
 			//print('failed login with $provider: $err');
 		} finally {
 			waiting = false;
+			serviceLoggedIn = true;
 		}
 	}
 
