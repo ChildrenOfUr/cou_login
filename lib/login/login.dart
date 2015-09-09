@@ -43,7 +43,10 @@ class UrLogin extends PolymerElement {
 		if (window.localStorage.containsKey('username')) {
 			//let's see if our firebase auth is current
 			Map auth = firebase.getAuth();
-			DateTime expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
+			DateTime expires = new DateTime.now();
+			if(auth != null) {
+				expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
+			}
 			if (expires.compareTo(new DateTime.now()) > 0) {
 				greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
 				loggedIn = true;
