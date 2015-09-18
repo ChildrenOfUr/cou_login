@@ -14,12 +14,16 @@
 				<span class="greeting">{{greetingPrefix}}, {{username}}</span>
 			</template>
 
-			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn}}">
+			<template if="{{serviceLoggedIn}}">
+				<span class="greeting">{{greetingPrefix}}</span>
+			</template>
+
+			<template if="{{!newUser && !forgotPassword && !newSignup && !loggedIn && !serviceLoggedIn}}">
 				<div on-keydown="{{loginAttempt}}" id="loginscreen">
 					<div id="top">
 						<div id="login">
 							<template if="{{waitingOnEmail}}">
-								<div id="waiting-warning">
+								<div id="waiting-email">
 									Please check your email.
 								</div>
 							</template>
@@ -65,6 +69,19 @@
 					<div>What do you want to be called?</div><br>
 					<input id="username" type="text" placeholder="Username (You can change this later)" value="{{newUsername}}" disabled?="{{existingUser}}">
 					<ur-button id="createuserbutton" big="true" theme="light" class="{{waiting?'waiting':''}}" on-click="{{usernameSubmit}}">That's totally me!</ur-button>
+					<div id="avatar-preview">
+						<div id="avatar-left" on-click="{{updateAvatarPreview}}" title="Click to Refresh">
+							<div id="avatar-container">
+								<div id="avatar-img" style="background-image: url({{avatarUrl}}); width: 80px; height: 119px;"></div>
+							</div>
+							<img src="youlabel.svg">
+						</div>
+						<div>
+							<p class="small">If you had an account on Glitch, use the same username here to get your old avatar.</p>
+							<p class="small">Because we do not yet have avatar customization, usernames that didn't exist in Glitch will revert to our default appearance.</p>
+							<p class="blue">Click the preview to refresh it.</p>
+						</div>
+					</div>
 				</div>
 			</template>
 

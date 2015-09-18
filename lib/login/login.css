@@ -128,7 +128,7 @@ input {
     cursor: pointer;
 }
 
-#warning, #password-warning, #waiting-warning {
+#warning, #password-warning, #waiting-warning, #waiting-email {
     margin:0;
     margin-top: -0.5em;
     padding-bottom: 0.5em;
@@ -136,4 +136,50 @@ input {
     text-align: center;
     color: #a60000;
     font-size: 0.8em;
+}
+
+#waiting-email,
+.blue {
+    color: #0061A6;
+}
+
+#avatar-preview {
+    display: flex;
+    flex-direction: row;
+}
+
+#avatar-preview > * {
+    flex: 1;
+}
+
+#avatar-left {
+    height: 160px;
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    left: -40px;
+    top: 30px;
+    cursor: pointer;
+}
+
+#avatar-left > img {
+    margin-left: 10px;
+}
+
+#avatar-container {
+    overflow: hidden;
+    height: 150px;
+}
+
+#avatar-img {
+    background-repeat: no-repeat;
+}
+
+.center {
+    text-align: center;
+}
+
+.small {
+    font-size: small;
 }

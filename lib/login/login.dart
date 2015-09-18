@@ -10,15 +10,16 @@ import 'package:transmit/transmit.dart';
 
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
-	@published String server, websocket, base;
+	@published String server, gameServer = "http://server.childrenofur.com:8181", websocket, base;
 	@observable bool newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
 	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
-	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, passwordTooShort = false;
+	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, serviceLoggedIn = false, passwordTooShort = false;
 	@observable String newUsername = '', newPassword = '';
+	@observable String avatarUrl = 'packages/cou_login/login/player_unknown.png';
 	Firebase firebase;
 	Map serverdata;
 	String greetingPrefix = "Good to see you";
-	List<String> greetingPrefixes = [ // Displayed as: greeting, username
+	List<String> greetingPrefixes = [ // Displayed as: {greeting}, {username}
 		"Good to see you",
 		"Greetings",
 		"Hello",
@@ -42,7 +43,10 @@ class UrLogin extends PolymerElement {
 		if (window.localStorage.containsKey('username')) {
 			//let's see if our firebase auth is current
 			Map auth = firebase.getAuth();
-			DateTime expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
+			DateTime expires = new DateTime.now();
+			if(auth != null) {
+				expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
+			}
 			if (expires.compareTo(new DateTime.now()) > 0) {
 				greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
 				loggedIn = true;
@@ -71,10 +75,10 @@ class UrLogin extends PolymerElement {
 			                                                requestHeaders: {"content-type": "application/json"},
 			                                                sendData: JSON.encode({'email':email}));
 			fireLoginSuccess(JSON.decode(request.response));
-			print('relogin() success');
+			//print('relogin() success');
 		}
 		catch (err) {
-			print('error relogin(): $err');
+			//print('error relogin(): $err');
 
 			//maybe the auth token has expired, present the prompt again
 			loggedIn = false;
@@ -108,9 +112,10 @@ class UrLogin extends PolymerElement {
 			Map sessionMap = await getSession(email);
 			fireLoginSuccess(sessionMap);
 		} catch (err) {
-			print('failed login with $provider: $err');
+			//print('failed login with $provider: $err');
 		} finally {
 			waiting = false;
+			serviceLoggedIn = true;
 		}
 	}
 
@@ -132,7 +137,7 @@ class UrLogin extends PolymerElement {
 			Map sessionMap = await getSession(email);
 
 			fireLoginSuccess(sessionMap);
-			print('success');
+			//print('success');
 		} catch (err) {
 			try {
 				//check to see if they have already verified their email (game window was closed when they clicked the link)
@@ -152,7 +157,7 @@ class UrLogin extends PolymerElement {
 				if (error.contains('Error: '))
 					error = error.replaceFirst('Error: ', '');
 				warning.text = error;
-				print(err);
+				//print(err);
 			}
 		} finally {
 			waiting = false;
@@ -162,7 +167,7 @@ class UrLogin extends PolymerElement {
 	fireLoginSuccess(var payload) async {
 		Timer acknowledgeTimer;
 		new Service(['loginAcknowledged'], (m) {
-			print('canceling success repeater');
+			//print('canceling success repeater');
 			acknowledgeTimer.cancel();
 		});
 		acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
@@ -205,6 +210,31 @@ class UrLogin extends PolymerElement {
 
 	void signup(event, detail, target) {
 		newSignup = true;
+	}
+
+	updateAvatarPreview(event, detail, target) {
+		// Read input
+		String getUsername = newUsername;
+		// Provide a default
+		if (getUsername == "") {
+			getUsername = "Hectaku";
+		}
+		// $server = http|//hostname|8383 (| = split point)
+		//           ^  +     ^    (-  ^)
+		HttpRequest.getString("$gameServer/getSpritesheets?username=$getUsername").then((String json) {
+			avatarUrl = JSON.decode(json)["base"];
+			// Used for sizing
+			ImageElement avatarData = new ImageElement()
+				..src = avatarUrl;
+			// Resize elements to fit image
+			avatarData.onLoad.listen((_) {
+				shadowRoot.querySelector("#avatar-container").style
+					..width = (avatarData.naturalWidth / 15).toString() + "px";
+				shadowRoot.querySelector("#avatar-img").style
+					..width = (avatarData.naturalWidth).toString() + "px"
+					..height = (avatarData.naturalHeight).toString() + "px";
+			});
+		});
 	}
 
 	verifyEmail(event, detail, target) async {
@@ -258,7 +288,7 @@ class UrLogin extends PolymerElement {
 		Map result = JSON.decode(request.response);
 		if (result['result'] != 'OK') {
 			waiting = false;
-			print(result);
+			//print(result);
 			return;
 		}
 
@@ -272,7 +302,7 @@ class UrLogin extends PolymerElement {
 			if (map['result'] == 'success') {
 				await _createNewUser(map);
 			} else {
-				print('problem verifying email address: ${map['result']}');
+				//print('problem verifying email address: ${map['result']}');
 
 			}
 
@@ -298,11 +328,11 @@ class UrLogin extends PolymerElement {
 				window.localStorage['authToken'] = (await firebase.authWithPassword(credentials))['token'];
 				window.localStorage['authEmail'] = map['serverdata']['playerEmail'];
 				serverdata = map['serverdata'];
-				print('new user');
+				//print('new user');
 			}
 			fireLoginSuccess(map['serverdata']);
 		} catch (err) {
-			print("couldn't create user on firebase: $err");
+			//print("couldn't create user on firebase: $err");
 		}
 	}
 
