@@ -10,52 +10,80 @@ import 'package:transmit/transmit.dart';
 
 @CustomTag('ur-login')
 class UrLogin extends PolymerElement {
-	@published String server, gameServer = "http://server.childrenofur.com:8181", websocket, base;
-	@observable bool newUser = false, forgotPassword = false, resetStageTwo = false, passwordConfirmation = false;
-	@observable bool timedout = false, newSignup = false, waiting = false, invalidEmail = false;
-	@observable bool waitingOnEmail = false, existingUser = false, loggedIn = false, serviceLoggedIn = false, passwordTooShort = false;
-	@observable String newUsername = '', newPassword = '';
+	static final bool DEBUG_ENABLED = false;
+
+	@published String base;
+	@published String gameServer = 'http://server.childrenofur.com:8181';
+	@published String server;
+	@published String websocket;
+
+	@observable bool existingUser = false;
+	@observable bool forgotPassword = false;
+	@observable bool invalidEmail = false;
+	@observable bool loggedIn = false;
+	@observable bool newSignup = false;
+	@observable bool newUser = false;
+	@observable bool passwordConfirmation = false;
+	@observable bool passwordTooShort = false;
+	@observable bool resetStageTwo = false;
+	@observable bool serviceLoggedIn = false;
+	@observable bool timedout = false;
+	@observable bool waiting = false;
+	@observable bool waitingOnEmail = false;
+
 	@observable String avatarUrl = 'packages/cou_login/login/player_unknown.png';
+	@observable String email = '';
+	@observable String newPassword = '';
+	@observable String newUsername = '';
+	@observable String password = '';
+	@observable String username = '';
+
 	Firebase firebase;
 	Map serverdata;
-	String greetingPrefix = "Good to see you";
-	List<String> greetingPrefixes = [ // Displayed as: {greeting}, {username}
-		"Good to see you",
-		"Greetings",
-		"Hello",
-		"Hello there",
-		"Have fun",
-		"Hi",
-		"Hi there",
-		"It's good to see you",
-		"Nice of you to join us",
-		"Thanks for joining us",
-		"Welcome",
-		"Welcome back"
-	];
 
-	@observable String username = '';
-	@observable String email = '';
-	@observable String password = '';
+	// Displayed as: {greeting}, {username}
+	static final List<String> GREETING_PREFIXES = [
+		'Good to see you',
+		'Greetings',
+		'Hello',
+		'Hello there',
+		'Have fun',
+		'Hi',
+		'Hi there',
+		'It\'s good to see you',
+		'Nice of you to join us',
+		'Thanks for joining us',
+		'Welcome',
+		'Welcome back'
+	];
+	String greetingPrefix = GREETING_PREFIXES.first;
 
 	UrLogin.created() : super.created() {
-		firebase = new Firebase("https://$base.firebaseio.com");
+		firebase = new Firebase('https://$base.firebaseio.com');
 		if (window.localStorage.containsKey('username')) {
-			//let's see if our firebase auth is current
+			// Let's see if our firebase auth is current
 			Map auth = firebase.getAuth();
 			DateTime expires = new DateTime.now();
-			if(auth != null) {
+
+			if (auth != null) {
 				expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
 			}
+
 			if (expires.compareTo(new DateTime.now()) > 0) {
-				greetingPrefix = greetingPrefixes[new Random().nextInt(greetingPrefixes.length)];
+				greetingPrefix = GREETING_PREFIXES[new Random().nextInt(GREETING_PREFIXES.length)];
 				loggedIn = true;
 				username = window.localStorage['username'];
 				new Timer(new Duration(seconds:1), () => relogin());
 			} else {
-				//it has expired already
+				// It has expired already
 				window.localStorage.remove('username');
 			}
+		}
+	}
+
+	void debug(dynamic object) {
+		if (DEBUG_ENABLED) {
+			print(object);
 		}
 	}
 
@@ -71,27 +99,29 @@ class UrLogin extends PolymerElement {
 
 			await firebase.authWithCustomToken(token);
 
-			HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
-			                                                requestHeaders: {"content-type": "application/json"},
-			                                                sendData: JSON.encode({'email':email}));
+			HttpRequest request = await HttpRequest.request(
+				server + '/auth/getSession', method: 'POST',
+				requestHeaders: {'content-type': 'application/json'},
+			    sendData: JSON.encode({'email':email}));
 			fireLoginSuccess(JSON.decode(request.response));
-			//print('relogin() success');
-		}
-		catch (err) {
-			//print('error relogin(): $err');
+			debug('relogin() success');
+		} catch (err) {
+			debug('error relogin(): $err');
 
-			//maybe the auth token has expired, present the prompt again
+			// Maybe the auth token has expired, present the prompt again
 			loggedIn = false;
 			window.localStorage.remove('username');
 		}
 	}
 
 	bool _enterKey(event) {
-		//detect enter key
+		// Detect enter key
 		if (event is KeyboardEvent) {
 			int code = (event as KeyboardEvent).keyCode;
-			if (code != 13)
+
+			if (code != 13) {
 				return false;
+			}
 		}
 
 		return true;
@@ -100,19 +130,22 @@ class UrLogin extends PolymerElement {
 	Future oauthLogin(event, detail, Element target) async {
 		String provider = target.attributes['provider'];
 		String scope = 'email';
-		if (provider == 'github')
+
+		if (provider == 'github') {
 			scope = 'user:email';
+		}
 
 		waiting = true;
+
 		try {
 			Map response = await firebase.authWithOAuthPopup(provider, scope:scope);
-			//print('user logged in with $provider: $response');
+			debug('user logged in with $provider: $response');
 
 			String email = response[provider]['email'];
 			Map sessionMap = await getSession(email);
 			fireLoginSuccess(sessionMap);
 		} catch (err) {
-			//print('failed login with $provider: $err');
+			debug('failed login with $provider: $err');
 		} finally {
 			waiting = false;
 			serviceLoggedIn = true;
@@ -123,7 +156,7 @@ class UrLogin extends PolymerElement {
 		if (!_enterKey(event))
 			return;
 
-		if(passwordConfirmation) {
+		if (passwordConfirmation) {
 			verifyEmail(event,detail,target);
 			return;
 		}
@@ -137,27 +170,29 @@ class UrLogin extends PolymerElement {
 			Map sessionMap = await getSession(email);
 
 			fireLoginSuccess(sessionMap);
-			//print('success');
+			debug('success');
 		} catch (err) {
 			try {
-				//check to see if they have already verified their email (game window was closed when they clicked the link)
-				HttpRequest request = await HttpRequest.request(server + "/auth/isEmailVerified", method: "POST",
-				                                                requestHeaders: {"content-type": "application/json"},
-				                                                sendData: JSON.encode({'email':email}));
+				// Check to see if they have already verified their email (game window was closed when they clicked the link)
+				HttpRequest request = await HttpRequest.request(
+					server + '/auth/isEmailVerified',
+					method: 'POST',
+				    requestHeaders: {'content-type': 'application/json'},
+				    sendData: JSON.encode({'email':email}));
 				Map map = JSON.decode(request.response);
 				if (map['result'] == 'success') {
 					await _createNewUser(map);
 				} else {
 					throw(err);
 				}
-			} catch(err) {
-				//we've never seen them before or they haven't yet verified their email
+			} catch (err) {
+				// We've never seen them before or they haven't yet verified their email
 				Element warning = shadowRoot.querySelector('#warning');
 				String error = err.toString();
 				if (error.contains('Error: '))
 					error = error.replaceFirst('Error: ', '');
 				warning.text = error;
-				//print(err);
+				debug(err);
 			}
 		} finally {
 			waiting = false;
@@ -167,7 +202,7 @@ class UrLogin extends PolymerElement {
 	Future fireLoginSuccess(var payload) async {
 		Timer acknowledgeTimer;
 		new Service(['loginAcknowledged'], (m) {
-			//print('canceling success repeater');
+			debug('canceling success repeater');
 			acknowledgeTimer.cancel();
 		});
 		acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
@@ -177,11 +212,15 @@ class UrLogin extends PolymerElement {
 	}
 
 	Future<Map> getSession(String email) async {
-		HttpRequest request = await HttpRequest.request(server + "/auth/getSession", method: "POST",
-		                                                requestHeaders: {"content-type": "application/json"},
-		                                                sendData: JSON.encode({'email':email}));
+		HttpRequest request = await HttpRequest.request(
+			server + '/auth/getSession',
+			method: 'POST',
+		    requestHeaders: {'content-type': 'application/json'},
+		    sendData: JSON.encode({'email':email}));
+
 		window.localStorage['authToken'] = firebase.getAuth()['token'];
 		window.localStorage['authEmail'] = email;
+
 		Map sessionMap = JSON.decode(request.response);
 		if (sessionMap['playerName'] != '') {
 			window.localStorage['username'] = sessionMap['playerName'];
@@ -195,7 +234,11 @@ class UrLogin extends PolymerElement {
 			return;
 		}
 
-		if (newUsername == '') {
+		// Remove leading/trailing spaces
+		newUsername = newUsername.trim();
+
+		// Username too short
+		if (newUsername.length < 3) {
 			return;
 		}
 
@@ -215,24 +258,28 @@ class UrLogin extends PolymerElement {
 	void updateAvatarPreview(event, detail, target) {
 		// Read input
 		String getUsername = newUsername;
+
 		// Provide a default
-		if (getUsername == "") {
-			getUsername = "Hectaku";
+		if (getUsername == '') {
+			getUsername = 'Hectaku';
 		}
+
 		// $server = http|//hostname|8383 (| = split point)
 		//           ^  +     ^    (-  ^)
-		HttpRequest.getString("$gameServer/getSpritesheets?username=$getUsername").then((String json) {
-			avatarUrl = JSON.decode(json)["base"];
+		HttpRequest.getString('$gameServer/getSpritesheets?username=$getUsername').then((String json) {
+			avatarUrl = JSON.decode(json)['base'];
+
 			// Used for sizing
 			ImageElement avatarData = new ImageElement()
 				..src = avatarUrl;
+
 			// Resize elements to fit image
 			avatarData.onLoad.listen((_) {
-				shadowRoot.querySelector("#avatar-container").style
-					..width = (avatarData.naturalWidth / 15).toString() + "px";
-				shadowRoot.querySelector("#avatar-img").style
-					..width = (avatarData.naturalWidth).toString() + "px"
-					..height = (avatarData.naturalHeight).toString() + "px";
+				shadowRoot.querySelector('#avatar-container').style
+					..width = (avatarData.naturalWidth / 15).toString() + 'px';
+				shadowRoot.querySelector('#avatar-img').style
+					..width = (avatarData.naturalWidth).toString() + 'px'
+					..height = (avatarData.naturalHeight).toString() + 'px';
 			});
 		});
 	}
@@ -241,28 +288,28 @@ class UrLogin extends PolymerElement {
 		Element warning = shadowRoot.querySelector('#warning');
 		warning.text = '';
 
-		// not an email
+		// Not an email
 		if (!email.contains('@')) {
 			warning.text = 'Invalid email';
 			return;
 		}
 
-		// password too short
+		// Password too short
 		if (password.length < 6) {
 			warning.text = 'Password too short';
 			return;
 		}
 
-		// display password confirmation
+		// Display password confirmation
 		if (!passwordConfirmation) {
 			passwordConfirmation = true;
 			return;
 		}
 
-		// passwords don't match
+		// Passwords don't match
 		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
 		if (password != confirmPassword.value) {
-			warning.text = "Passwords don't match";
+			warning.text = 'Passwords don\'t match';
 			return;
 		}
 
@@ -277,32 +324,35 @@ class UrLogin extends PolymerElement {
 		waiting = true;
 		waitingOnEmail = true;
 
+		// Timer tooLongTimer = new Timer(new Duration(seconds: 5), () => timedout = true);
 
-		//Timer tooLongTimer = new Timer(new Duration(seconds: 5), () => timedout = true);
-
-		HttpRequest request = await HttpRequest.request(server + "/auth/verifyEmail", method: "POST",
-		                                                requestHeaders: {"content-type": "application/json"},
-		                                                sendData: JSON.encode({'email':email}));
-		//tooLongTimer.cancel();
+		HttpRequest request = await HttpRequest.request(
+			server + '/auth/verifyEmail',
+			method: 'POST',
+		    requestHeaders: {'content-type': 'application/json'},
+		    sendData: JSON.encode({'email':email}));
+		// tooLongTimer.cancel();
 
 		Map result = JSON.decode(request.response);
 		if (result['result'] != 'OK') {
 			waiting = false;
-			//print(result);
+			debug(result);
 			return;
 		}
 
-		WebSocket ws = new WebSocket(websocket + "/awaitVerify");
+		WebSocket ws = new WebSocket(websocket + '/awaitVerify');
+
 		ws.onOpen.first.then((_) {
 			Map map = {'email':email};
 			ws.send(JSON.encode(map));
 		});
+
 		ws.onMessage.first.then((MessageEvent event) async {
 			Map map = JSON.decode(event.data);
 			if (map['result'] == 'success') {
 				await _createNewUser(map);
 			} else {
-				//print('problem verifying email address: ${map['result']}');
+				debug('problem verifying email address: ${map['result']}');
 
 			}
 
@@ -312,14 +362,15 @@ class UrLogin extends PolymerElement {
 
 	Future _createNewUser(Map map) async {
 		try {
-			//create the user in firebase
+			// Create the user in firebase
 			await firebase.createUser({'email':email, 'password':password});
 
 			newPassword = password;
 			if (map['serverdata']['playerName'].trim() != '') {
 				username = map['serverdata']['playerName'].trim();
 				window.localStorage['username'] = username;
-				//email already exists, make them choose a password
+
+				// Email already exists, make them choose a password
 				existingUser = true;
 			} else {
 				newUser = true;
@@ -328,11 +379,11 @@ class UrLogin extends PolymerElement {
 				window.localStorage['authToken'] = (await firebase.authWithPassword(credentials))['token'];
 				window.localStorage['authEmail'] = map['serverdata']['playerEmail'];
 				serverdata = map['serverdata'];
-				//print('new user');
+				debug('new user');
 			}
 			fireLoginSuccess(map['serverdata']);
 		} catch (err) {
-			//print("couldn't create user on firebase: $err");
+			debug('couldn\'t create user on firebase: $err');
 		}
 	}
 
@@ -348,7 +399,7 @@ class UrLogin extends PolymerElement {
 			Element warning = shadowRoot.querySelector('#password-warning');
 
 			if (newPasswordElement.value != confirmationElement.value) {
-				warning.text = "Passwords don't match";
+				warning.text = 'Passwords don\'t match';
 				return;
 			}
 
@@ -356,10 +407,11 @@ class UrLogin extends PolymerElement {
 			String newPass = newPasswordElement.value;
 
 			firebase.changePassword({
-				                        'email': email,
-				                        'oldPassword': tempPass,
-				                        'newPassword': newPass
-			                        }).catchError(print);
+				'email': email,
+				'oldPassword': tempPass,
+				'newPassword': newPass
+			}).catchError(debug);
+
 			togglePassword();
 		}
 	}
