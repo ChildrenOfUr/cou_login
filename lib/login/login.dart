@@ -59,12 +59,12 @@ class UrLogin extends PolymerElement {
 		}
 	}
 
-	togglePassword() {
+	void togglePassword() {
 		forgotPassword = !forgotPassword;
 		resetStageTwo = false;
 	}
 
-	relogin() async {
+	Future relogin() async {
 		try {
 			String token = window.localStorage['authToken'];
 			String email = window.localStorage['authEmail'];
@@ -97,7 +97,7 @@ class UrLogin extends PolymerElement {
 		return true;
 	}
 
-	oauthLogin(event, detail, Element target) async {
+	Future oauthLogin(event, detail, Element target) async {
 		String provider = target.attributes['provider'];
 		String scope = 'email';
 		if (provider == 'github')
@@ -119,7 +119,7 @@ class UrLogin extends PolymerElement {
 		}
 	}
 
-	loginAttempt(event, detail, target) async {
+	Future loginAttempt(event, detail, target) async {
 		if (!_enterKey(event))
 			return;
 
@@ -164,7 +164,7 @@ class UrLogin extends PolymerElement {
 		}
 	}
 
-	fireLoginSuccess(var payload) async {
+	Future fireLoginSuccess(var payload) async {
 		Timer acknowledgeTimer;
 		new Service(['loginAcknowledged'], (m) {
 			//print('canceling success repeater');
@@ -190,7 +190,7 @@ class UrLogin extends PolymerElement {
 		return sessionMap;
 	}
 
-	usernameSubmit(event, detail, target) async {
+	Future usernameSubmit(event, detail, target) async {
 		if (!_enterKey(event)) {
 			return;
 		}
@@ -212,7 +212,7 @@ class UrLogin extends PolymerElement {
 		newSignup = true;
 	}
 
-	updateAvatarPreview(event, detail, target) {
+	void updateAvatarPreview(event, detail, target) {
 		// Read input
 		String getUsername = newUsername;
 		// Provide a default
@@ -237,7 +237,7 @@ class UrLogin extends PolymerElement {
 		});
 	}
 
-	verifyEmail(event, detail, target) async {
+	Future verifyEmail(event, detail, target) async {
 		Element warning = shadowRoot.querySelector('#warning');
 		warning.text = '';
 
@@ -336,7 +336,7 @@ class UrLogin extends PolymerElement {
 		}
 	}
 
-	resetPassword() {
+	void resetPassword() {
 		if (!resetStageTwo) {
 			firebase.resetPassword({'email': email});
 			resetStageTwo = true;
