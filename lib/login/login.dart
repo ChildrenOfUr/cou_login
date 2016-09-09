@@ -69,10 +69,11 @@ class UrLogin extends PolymerElement {
 				expires = new DateTime.fromMillisecondsSinceEpoch(auth['expires'] * 1000);
 			}
 
+			username = window.localStorage['username'] ?? '';
+
 			if (expires.compareTo(new DateTime.now()) > 0) {
 				greetingPrefix = GREETING_PREFIXES[new Random().nextInt(GREETING_PREFIXES.length)];
 				loggedIn = true;
-				username = window.localStorage['username'];
 				new Timer(new Duration(seconds:1), () => relogin());
 			} else {
 				// It has expired already
