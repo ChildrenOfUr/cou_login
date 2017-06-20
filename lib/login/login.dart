@@ -13,7 +13,7 @@ class UrLogin extends PolymerElement {
 	static final bool DEBUG_ENABLED = false;
 
 	@published String base;
-	@published String gameServer = 'http://server.childrenofur.com:8181';
+	@published String gameServer = 'https://server.childrenofur.com:8181';
 	@published String server;
 	@published String websocket;
 
