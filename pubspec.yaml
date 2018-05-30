@@ -11,10 +11,9 @@ dependencies:
       ref: master
       url: git://github.com/ChildrenOfUr/transmit.git
   cou_toolkit:
-#    git:
-#      ref: master
-#      url: git://github.com/ChildrenOfUr/cou_toolkit.git
-    path: ../cou_toolkit
+    git:
+      ref: dart-2
+      url: git://github.com/ChildrenOfUr/cou_toolkit.git
 
 transformers:
 - angular:
