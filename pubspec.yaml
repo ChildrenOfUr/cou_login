@@ -3,20 +3,19 @@ version: 0.1.4
 description: A polymer component that encapsulates the functionality needed for the game's login system
 
 dependencies:
-  browser: ">=0.10.0+2 <0.11.0"
-  polymer: ">=0.16.1+4 <0.17.0"
-  core_elements: ">=0.7.1+2 <0.8.0"
-  paper_elements: ">=0.7.1 <0.8.0"
+  browser: any
+  angular: "^4.0.0+2"
   firebase: ">=0.5.0 <0.6.0"
   transmit:
     git:
       ref: master
       url: git://github.com/ChildrenOfUr/transmit.git
   cou_toolkit:
-    git:
-      ref: master
-      url: git://github.com/ChildrenOfUr/cou_toolkit.git
+#    git:
+#      ref: master
+#      url: git://github.com/ChildrenOfUr/cou_toolkit.git
+    path: ../cou_toolkit
 
 transformers:
-- polymer:
-    entry_points: web/login_polymer.html
+- angular:
+    entry_points: web/login.dart

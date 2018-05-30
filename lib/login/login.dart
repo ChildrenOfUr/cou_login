@@ -2,41 +2,45 @@ library login;
 
 import 'dart:html';
 import 'dart:math';
-import 'package:polymer/polymer.dart';
+import 'package:angular/angular.dart';
 import 'package:firebase/firebase.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:transmit/transmit.dart';
 
-@CustomTag('ur-login')
-class UrLogin extends PolymerElement {
+@Component(
+	selector: 'ur-login',
+	templateUrl: 'login.html',
+	styleUrls: const ['login.css']
+)
+class UrLogin {
 	static final bool DEBUG_ENABLED = false;
 
-	@published String base;
-	@published String gameServer = 'https://server.childrenofur.com:8181';
-	@published String server;
-	@published String websocket;
+	String base;
+	String gameServer = 'https://server.childrenofur.com:8181';
+	String server;
+	String websocket;
 
-	@observable bool existingUser = false;
-	@observable bool forgotPassword = false;
-	@observable bool invalidEmail = false;
-	@observable bool loggedIn = false;
-	@observable bool newSignup = false;
-	@observable bool newUser = false;
-	@observable bool passwordConfirmation = false;
-	@observable bool passwordTooShort = false;
-	@observable bool resetStageTwo = false;
-	@observable bool serviceLoggedIn = false;
-	@observable bool timedout = false;
-	@observable bool waiting = false;
-	@observable bool waitingOnEmail = false;
+	bool existingUser = false;
+	bool forgotPassword = false;
+	bool invalidEmail = false;
+	bool loggedIn = false;
+	bool newSignup = false;
+	bool newUser = false;
+	bool passwordConfirmation = false;
+	bool passwordTooShort = false;
+	bool resetStageTwo = false;
+	bool serviceLoggedIn = false;
+	bool timedout = false;
+	bool waiting = false;
+	bool waitingOnEmail = false;
 
-	@observable String avatarUrl = 'packages/cou_login/login/player_unknown.png';
-	@observable String email = '';
-	@observable String newPassword = '';
-	@observable String newUsername = '';
-	@observable String password = '';
-	@observable String username = '';
+	String avatarUrl = 'packages/cou_login/login/player_unknown.png';
+	String email = '';
+	String newPassword = '';
+	String newUsername = '';
+	String password = '';
+	String username = '';
 
 	Firebase firebase;
 	Map serverdata;
@@ -58,7 +62,11 @@ class UrLogin extends PolymerElement {
 	];
 	String greetingPrefix = GREETING_PREFIXES.first;
 
-	UrLogin.created() : super.created() {
+	ElementRef _host;
+
+	Element get host => _host.nativeElement;
+
+	UrLogin(this._host) {
 		firebase = new Firebase('https://$base.firebaseio.com');
 		if (window.localStorage.containsKey('username')) {
 			// Let's see if our firebase auth is current
@@ -188,7 +196,7 @@ class UrLogin extends PolymerElement {
 				}
 			} catch (err) {
 				// We've never seen them before or they haven't yet verified their email
-				Element warning = shadowRoot.querySelector('#warning');
+				Element warning = querySelector('#warning');
 				String error = err.toString();
 				if (error.contains('Error: '))
 					error = error.replaceFirst('Error: ', '');
@@ -207,9 +215,9 @@ class UrLogin extends PolymerElement {
 			acknowledgeTimer.cancel();
 		});
 		acknowledgeTimer = new Timer.periodic(new Duration(seconds: 1), (Timer t) {
-			dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
+			_host.nativeElement.dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
 		});
-		dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
+		_host.nativeElement.dispatchEvent(new CustomEvent('loginSuccess', detail: payload));
 	}
 
 	Future<Map> getSession(String email) async {
@@ -248,7 +256,7 @@ class UrLogin extends PolymerElement {
 		if (existingUser) {
 			fireLoginSuccess(serverdata);
 		} else {
-			dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
+			_host.nativeElement.dispatchEvent(new CustomEvent('setUsername', detail: newUsername));
 		}
 	}
 
@@ -276,9 +284,9 @@ class UrLogin extends PolymerElement {
 
 			// Resize elements to fit image
 			avatarData.onLoad.listen((_) {
-				shadowRoot.querySelector('#avatar-container').style
+				querySelector('#avatar-container').style
 					..width = (avatarData.naturalWidth / 15).toString() + 'px';
-				shadowRoot.querySelector('#avatar-img').style
+				querySelector('#avatar-img').style
 					..width = (avatarData.naturalWidth).toString() + 'px'
 					..height = (avatarData.naturalHeight).toString() + 'px';
 			});
@@ -286,7 +294,7 @@ class UrLogin extends PolymerElement {
 	}
 
 	Future verifyEmail(event, detail, target) async {
-		Element warning = shadowRoot.querySelector('#warning');
+		Element warning = querySelector('#warning');
 		warning.text = '';
 
 		// Not an email
@@ -308,7 +316,7 @@ class UrLogin extends PolymerElement {
 		}
 
 		// Passwords don't match
-		InputElement confirmPassword = shadowRoot.querySelector('#confirm-password');
+		InputElement confirmPassword = querySelector('#confirm-password');
 		if (password != confirmPassword.value) {
 			warning.text = 'Passwords don\'t match';
 			return;
@@ -394,17 +402,17 @@ class UrLogin extends PolymerElement {
 			resetStageTwo = true;
 			return;
 		} else {
-			InputElement newPasswordElement = shadowRoot.querySelector('#new-password-1');
-			InputElement confirmationElement = shadowRoot.querySelector('#new-password-2');
+			InputElement newPasswordElement = querySelector('#new-password-1');
+			InputElement confirmationElement = querySelector('#new-password-2');
 
-			Element warning = shadowRoot.querySelector('#password-warning');
+			Element warning = querySelector('#password-warning');
 
 			if (newPasswordElement.value != confirmationElement.value) {
 				warning.text = 'Passwords don\'t match';
 				return;
 			}
 
-			String tempPass = (shadowRoot.querySelector('#temp-password') as InputElement).value;
+			String tempPass = (querySelector('#temp-password') as InputElement).value;
 			String newPass = newPasswordElement.value;
 
 			firebase.changePassword({
