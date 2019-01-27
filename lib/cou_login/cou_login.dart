@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
+import 'dart:developer';
 
 import 'package:angular/angular.dart';
 import 'package:angular/security.dart';
@@ -74,7 +75,9 @@ class CouLogin {
                 } else if (currentUser.providerData[0].email != null) {
                     currentEmail = currentUser.providerData[0].email;
                 }
-                fireLoginSuccess(await getSession(currentEmail));
+                if (currentEmail != null) {
+                    fireLoginSuccess(await getSession(currentEmail));
+                }
             } else {
                 window.localStorage.remove('username');
             }
@@ -318,6 +321,10 @@ class CouLogin {
     }
 
     fireLoginSuccess(var payload) async {
+        if (payload['playerEmail'] == null) {
+            signOut();
+            return;
+        }
         Timer acknowledgeTimer;
         new Service(['loginAcknowledged'], (m) {
             //print('canceling success repeater');
