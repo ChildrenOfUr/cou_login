@@ -67,8 +67,14 @@ class CouLogin {
     CouLogin(this._trustService) : this.auth = firebase.auth() {
         auth.onAuthStateChanged.listen((firebase.User user) async {
             currentUser = user;
+            String currentEmail = null;
             if (currentUser != null) {
-                fireLoginSuccess(await getSession(currentUser.email));
+                if (currentUser.email != null) {
+                    currentEmail = currentUser.email;
+                } else if (currentUser.providerData[0].email != null) {
+                    currentEmail = currentUser.providerData[0].email;
+                }
+                fireLoginSuccess(await getSession(currentEmail));
             } else {
                 window.localStorage.remove('username');
             }
