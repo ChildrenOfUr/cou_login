@@ -1,0 +1,307 @@
+p, input, textarea {
+    font-family: 'Lato', sans-serif;
+    cursor: auto;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    color: #000;
+    resize: none;
+    margin: 0;
+}
+
+input {
+    font-size: 15px;
+    background-color: #eee;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+a {
+    cursor: auto;
+    color: #4b2e4c;
+    text-decoration: none;
+}
+
+.primary {
+    color: #4b2e4c;
+}
+
+.red {
+    color: #ba381a;
+}
+
+.white {
+    color: #fff;
+}
+
+.big {
+    font-size: 20px;
+}
+
+.small {
+    font-size: 15px;
+}
+
+.soft {
+    list-style-type: none;
+    color: gray;
+    font-size: 12px;
+    font-weight: 200;
+}
+
+button {
+    font-family: 'Fredoka One', cursive;
+    position: relative;
+    min-width: 30px;
+    border-radius: 7px;
+    padding: 6px;
+    background-color: #4b2e4c;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom: 3px solid rgba(0, 0, 0, 0.3);
+    text-align: center;
+    cursor: pointer;
+    box-shadow: inset 0 -2px 5px 1px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.1s;
+}
+
+button:hover {
+    box-shadow: inset 0 -2px 5px 3px rgba(255, 0, 200, 0.1);
+}
+
+button, button * {
+    color: #fff;
+}
+
+button:active {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 8px;
+    box-shadow: 0 1px 50px 20px rgba(255, 255, 255, 0.1);
+    transform: translateY(1px);
+}
+
+button.warn {
+    background-color: #ba381a;
+}
+
+button.success {
+    background-color: #57AA4B;
+}
+
+button.wide {
+    width: 85px;
+}
+
+button.light {
+    background-color: #fff;
+}
+
+button.light[darkui="true"] {
+    background-color: #282828;
+}
+
+button.light, button.light * {
+    color: #4b2e4c;
+}
+
+button.light[darkui="true"],
+button.light[darkui="true"] * {
+    color: #eee;
+}
+
+button.big {
+    font-size: 20px;
+}
+
+.login-panel {
+    display: inline-block;
+    background-color: #fff;
+    border: 1px solid #bbb;
+    border-bottom: 2px solid #bbb;
+    padding: 30px;
+    padding-bottom: 10px;
+    margin: 5px;
+    border-radius: 8px;
+}
+
+.login-panel.darkui {
+    background-color: #282828;
+    color: #eee;
+    border-color: #181818;
+}
+
+div {
+    font-size: 12pt;
+    font-family: 'Lato', sans-serif;
+    margin: 3px;
+    color: #000;
+}
+
+.greeting {
+    text-align: center;
+    font-size: 14pt;
+    width: 100%;
+    display: inline-block;
+    color: #4b2e4c;
+    font-family: 'Fredoka One', cursive;
+}
+
+.logo {
+    width: 100px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.waiting {
+    opacity: .4;
+    pointer-events: none;
+}
+
+input {
+    margin-bottom: 5px;
+    display: block;
+    width: 100%;
+    font-size: 15px;
+    background-color: #eee;
+    height: 25px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    font-family: 'Lato', sans-serif;
+}
+
+#loginscreen {
+    display: flex;
+    flex-direction: column;
+}
+
+#top,
+#bottom {
+    display: flex;
+    flex-direction: row;
+}
+
+#login {
+    margin-left: auto;
+    margin-right: auto;
+    width: calc(100% - 5px);
+}
+
+#loginsubmit {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+}
+
+#loginsubmit button {
+    flex: 1;
+    text-align: center;
+}
+
+#social {
+    display: flex;
+    flex: 1;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+}
+
+#social > button {
+    text-align: center;
+    flex: 1;
+    flex-direction: row;
+}
+
+#facebook {
+    background: #3B5999;
+    color: #fff;
+}
+
+#google {
+    background: #d34836;
+    color: #fff;
+}
+
+#github {
+    background: #333;
+    color: #fff;
+}
+
+#createuser input {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#createuser, #passwordReset {
+    text-align: center;
+}
+
+#createuserbutton {
+    margin-top: 20px;
+}
+
+#forgot-password, #back-to-main, #sign-out {
+    text-align: center;
+    margin: 0;
+    margin-top: 10px;
+    text-decoration: underline;
+    color: #666;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+#warning, #password-warning, #waiting-warning, #waiting-email {
+    margin: 0;
+    margin-top: -0.5em;
+    padding-bottom: 0.5em;
+    vertical-align: middle;
+    text-align: center;
+    color: #a60000;
+    font-size: 0.8em;
+}
+
+#waiting-email,
+.blue {
+    color: #0061A6;
+}
+
+#avatar-preview {
+    display: flex;
+    flex-direction: row;
+}
+
+#avatar-preview > * {
+    flex: 1;
+}
+
+#avatar-left {
+    height: 160px;
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    left: -40px;
+    top: 30px;
+    cursor: pointer;
+}
+
+#avatar-left > img {
+    margin-left: 10px;
+}
+
+#avatar-container {
+    overflow: hidden;
+    height: 150px;
+}
+
+#avatar-img {
+    background-repeat: no-repeat;
+}
+
+.center {
+    text-align: center;
+}
+
+.small {
+    font-size: small;
+}
