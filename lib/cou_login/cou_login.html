@@ -1,0 +1,90 @@
+<div class="login-panel" id="user-login">
+    <img src="packages/cou_login/cou_login/assets/logo.svg" class="logo" alt="logo"><br>
+
+    <div *ngIf="loggedIn">
+        <span *ngIf="!newUser" class="greeting">{{greetingPrefix}}, {{displayName}}</span>
+        <div id="sign-out" (click)="signOut">Sign Out</div>
+    </div>
+
+    <div *ngIf="!newUser && !forgotPassword && !newSignup && !loggedIn">
+        <div (keydown)="loginAttempt($event)" id="loginscreen">
+            <div id="top">
+                <div id="login">
+                    <div *ngIf="waitingOnEmail">
+                        <div id="waiting-email">
+                            Please check your email.
+                        </div>
+                    </div>
+                    <input [(ngModel)]="email" [ngClass]="{'waiting': waiting}" placeholder="Email">
+                    <input [(ngModel)]="password" [ngClass]="{'waiting': waiting}" type="password" placeholder="Password">
+
+                    <div *ngIf="passwordConfirmation">
+                        <input [(ngModel)]="confirmPassword" [ngClass]="{'waiting': waiting}" type="password" placeholder="Confirm Password">
+                    </div>
+
+
+                    <div>{{warningText}}</div>
+                    <div id="loginsubmit">
+                        <button id="loginbutton" [ngClass]="{'waiting': waiting, 'big': true}" (click)="loginAttempt"><i class="fas fa-sign-in-alt"></i> Log In</button>
+                        <button [ngClass]="{'waiting': waiting, 'big': true}" (click)="verifyEmail"><i class="fas fa-pencil-alt"></i> Sign Up</button>
+                    </div>
+                </div>
+            </div>
+            <div id="bottom">
+                <div id="social">
+                    <button id="google" [ngClass]="{'waiting': waiting, 'wide': true}" (click)="oauthLogin('google')"><i class="fab fa-google"></i> Google</button>
+                    <button id="facebook" [ngClass]="{'waiting': waiting, 'wide': true}" (click)="oauthLogin('facebook')"><i class="fab fa-facebook-f"></i> Facebook</button>
+                    <button id="github" [ngClass]="{'waiting': waiting, 'wide': true}" (click)="oauthLogin('github')"><i class="fab fa-github"></i> GitHub</button>
+                </div>
+            </div>
+            <div id="forgot-password" (click)="togglePassword">Forgot your password?</div>
+        </div>
+    </div>
+
+    <div *ngIf="newUser">
+        <div (keydown)="usernameSubmit($event)" id="createuser">
+            <div class="greeting">Hey, a new face!</div>
+            <div>What do you want to be called?</div><br>
+            <input id="username" type="text" placeholder="Username (You can change this later)" [(ngModel)]="newUsername" [disabled]="existingUser">
+            <button id="createuserbutton" [ngClass]="{'waiting': waiting, 'big': true, 'light': true}" (click)="usernameSubmit">That's totally me!</button>
+            <div id="avatar-preview">
+                <div id="avatar-left" (click)="updateAvatarPreview" title="Click to Refresh">
+                    <div [style.width.px]="containerWidth" id="avatar-container">
+                        <div id="avatar-img" [style.width.px]="avatarWidth" [style.height.px]="avatarHeight" [style.background-image]="avatarUrl"></div>
+                    </div>
+                    <img src="packages/cou_login/cou_login/assets/youlabel.svg">
+                </div>
+                <div>
+                    <p class="small">If you had an account on Glitch, use the same username here to get your old avatar.</p>
+                    <p class="small">Because we do not yet have avatar customization, usernames that didn't exist in Glitch will revert to our default appearance.</p>
+                    <p class="blue">Click the preview to refresh it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="forgotPassword">
+        <div id="passwordReset">
+            <div class="greeting">Password Reset</div>
+
+            <div *ngIf="!resetStageTwo">
+                <div>Enter your email</div>
+                <input type="text" placeholder="Email" value="{{email}}">
+            </div>
+
+            <div *ngIf="resetStageTwo">
+                <div>Get an email?</div>
+                <input id="temp-password" type="password" [(ngModel)]="tempPassword" placeholder="Temporary Password">
+                <div>Enter your new Password</div>
+
+                <input id="new-password-1" type="password" [(ngModel)]="newPassword" placeholder="New Password">
+                <input id="new-password-2" type="password" [(ngModel)]="confirmPassword" placeholder="Confirm New Password">
+                <div id="password-warning">{{passwordWarning}}</div>
+            </div>
+
+            <button id="resetButton" class="warn" (click)="resetPassword">Submit</button>
+        </div>
+        <div id="back-to-main" (click)="togglePassword">Go back?</div>
+    </div>
+
+</div>
