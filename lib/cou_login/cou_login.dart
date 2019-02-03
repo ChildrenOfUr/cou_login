@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
-import 'dart:developer';
 
 import 'package:angular/angular.dart';
 import 'package:angular/security.dart';
@@ -12,10 +11,10 @@ import 'package:transmit/transmit.dart';
 @Component(
     selector: 'cou-login',
     templateUrl: 'cou_login.html',
-    styleUrls: [
+    styleUrls: const [
       'cou_login.css',
     ],
-    directives: const [coreDirectives, formDirectives],
+    directives: const [CORE_DIRECTIVES, formDirectives],
 )
 class CouLogin {
     final DomSanitizationService _trustService;
@@ -118,7 +117,6 @@ class CouLogin {
 
         try {
             await auth.setPersistence('local');
-            firebase.UserCredential credential =
             await auth.signInWithEmailAndPassword(email, password);
             document.dispatchEvent(
                 new CustomEvent('loginSuccess', detail: 'Yay!'));
@@ -133,8 +131,8 @@ class CouLogin {
                     server + "/auth/isEmailVerified",
                     method: "POST",
                     requestHeaders: {"content-type": "application/json"},
-                    sendData: jsonEncode({'email': email}));
-                Map map = jsonDecode(request.response);
+                    sendData: JSON.encode({'email': email}));
+                Map map = JSON.decode(request.response);
                 if (map['result'] == 'success') {
                     await _createNewUser(map);
                 } else {
@@ -158,9 +156,9 @@ class CouLogin {
             server + "/auth/getSession",
             method: "POST",
             requestHeaders: {"content-type": "application/json"},
-            sendData: jsonEncode({'email': email}));
+            sendData: JSON.encode({'email': email}));
         window.localStorage['authEmail'] = currentUser.email;
-        Map sessionMap = jsonDecode(request.response);
+        Map sessionMap = JSON.decode(request.response);
         if (sessionMap['playerName'] != '') {
             window.localStorage['username'] = sessionMap['playerName'];
         }
@@ -230,9 +228,9 @@ class CouLogin {
             "https://server.childrenofur.com:8383/auth/verifyEmail",
             method: "POST",
             requestHeaders: {"content-type": "application/json"},
-            sendData: jsonEncode({'email': email}));
+            sendData: JSON.encode({'email': email}));
 
-        Map result = jsonDecode(request.response);
+        Map result = JSON.decode(request.response);
         if (result['result'] != 'OK') {
             waiting = false;
             print(result);
@@ -242,10 +240,10 @@ class CouLogin {
         WebSocket ws = new WebSocket(websocket + "/awaitVerify");
         ws.onOpen.first.then((_) {
             Map map = {'email': email};
-            ws.send(jsonEncode(map));
+            ws.send(JSON.encode(map));
         });
         ws.onMessage.first.then((MessageEvent event) async {
-            Map map = jsonDecode(event.data);
+            Map map = JSON.decode(event.data);
             if (map['result'] == 'success') {
                 await _createNewUser(map);
             } else {
@@ -285,13 +283,13 @@ class CouLogin {
     oauthLogin(String provider) async {
         firebase.AuthProvider authProvider;
         if (provider == 'facebook') {
-            authProvider = firebase.FacebookAuthProvider();
+            authProvider = new firebase.FacebookAuthProvider();
             (authProvider as firebase.FacebookAuthProvider).addScope('email');
         } else if (provider == 'github') {
-            authProvider = firebase.GithubAuthProvider();
+            authProvider = new firebase.GithubAuthProvider();
             (authProvider as firebase.GithubAuthProvider).addScope('user:email');
         } else if (provider == 'google') {
-            authProvider = firebase.GoogleAuthProvider();
+            authProvider = new firebase.GoogleAuthProvider();
             (authProvider as firebase.GoogleAuthProvider).addScope('email');
         }
 
@@ -354,7 +352,7 @@ class CouLogin {
         HttpRequest.getString(
             "$gameServer/getSpritesheets?username=$newUsername")
             .then((String json) {
-            _avatarUrl = jsonDecode(json)["base"];
+            _avatarUrl = JSON.decode(json)["base"];
             // Used for sizing
             ImageElement avatarData = new ImageElement()
                 ..src = _avatarUrl;
